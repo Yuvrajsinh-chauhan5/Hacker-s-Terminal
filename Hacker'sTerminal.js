@@ -12,7 +12,7 @@ const randomDelay = ()=>{
  }
  
  
- alert("Initialize Hacking")
+ alert("System Hacked!!!!!!!!!!!!!!!!")
  
  
  const terminal = document.createElement("div")
