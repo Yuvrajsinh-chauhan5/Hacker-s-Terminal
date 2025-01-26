@@ -2,7 +2,7 @@
 
 const randomDelay = () => {
    return new Promise((resolve) => {
-     let timeout = 1 + 6 * Math.random();
+     let timeout = 1 + 3 * Math.random();
      setTimeout(() => {
        resolve();
      }, timeout * 1000);
