@@ -6155,15 +6155,10 @@
 
     /* =========================================================
        HACKER'S TERMINAL — V2
-       "COMPROMISED WORKSTATION"
-       
-       VISUAL SIMULATION ONLY
-       No files / network / accounts / camera / microphone access.
-       ========================================================= */
-
-    /* =========================================================
-       STYLES
-       ========================================================= */
+       Visual browser-local simulation only.
+       No files, network, accounts, camera, microphone, or
+       system controls are accessed.
+    ========================================================= */
 
     const style = document.createElement("style");
 
@@ -6176,762 +6171,562 @@
         body {
             margin: 0;
             width: 100%;
-            height: 100%;
-            background: #050607;
-            color: #d9e7e9;
+            min-height: 100%;
+            background: #f5f6f8;
             font-family:
-                "SFMono-Regular",
-                "Cascadia Code",
-                "Roboto Mono",
-                Consolas,
-                monospace;
-            overflow: hidden;
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            overflow-x: hidden;
         }
 
         body {
-            user-select: none;
-            cursor: default;
-        }
-
-        button {
-            font: inherit;
-        }
-
-        /* =========================
-           APP
-           ========================= */
-
-        #simApp {
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(
-                    circle at 50% 30%,
-                    rgba(0, 255, 180, 0.035),
-                    transparent 45%
-                ),
-                #050607;
-            overflow: hidden;
-        }
-
-        #simApp::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 90;
-            background:
-                repeating-linear-gradient(
-                    to bottom,
-                    rgba(255,255,255,0.018) 0px,
-                    rgba(255,255,255,0.018) 1px,
-                    transparent 1px,
-                    transparent 4px
-                );
-            opacity: 0.22;
-        }
-
-        #simApp::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 91;
-            box-shadow:
-                inset 0 0 140px rgba(0,0,0,0.82),
-                inset 0 0 35px rgba(0,0,0,0.55);
-        }
-
-        /* =========================
-           ENTRY
-           ========================= */
-
-        #entryScreen {
-            position: absolute;
-            inset: 0;
-            z-index: 30;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background:
-                radial-gradient(
-                    circle at center,
-                    rgba(0, 255, 170, 0.055),
-                    transparent 38%
-                ),
-                #050607;
+            min-height: 100vh;
+            color: #17191d;
             transition:
-                opacity 0.8s ease,
-                transform 0.8s ease;
+                background 0.25s ease,
+                filter 0.2s ease;
         }
 
-        #entryScreen.hidden {
-            opacity: 0;
-            transform: scale(1.025);
-            pointer-events: none;
-        }
-
-        .entry-card {
-            width: min(560px, 88vw);
-            padding: 38px;
-            border: 1px solid rgba(150, 180, 180, 0.18);
-            background: rgba(8, 12, 13, 0.82);
-            box-shadow:
-                0 30px 80px rgba(0,0,0,0.65),
-                inset 0 0 40px rgba(255,255,255,0.012);
-            backdrop-filter: blur(12px);
-        }
-
-        .entry-kicker {
-            color: #68797b;
-            font-size: 11px;
-            letter-spacing: 0.25em;
-            margin-bottom: 20px;
-        }
-
-        .entry-title {
-            margin: 0;
-            font-size: clamp(28px, 5vw, 46px);
-            font-weight: 500;
-            letter-spacing: -0.04em;
-            color: #e7eeee;
-        }
-
-        .entry-subtitle {
-            margin-top: 13px;
-            color: #77888a;
-            font-size: 12px;
-            line-height: 1.8;
-        }
-
-        .entry-status {
-            margin-top: 28px;
-            padding: 12px 14px;
-            border-left: 2px solid #32cfa4;
-            background: rgba(50, 207, 164, 0.035);
-            color: #91aaa7;
-            font-size: 11px;
-        }
-
-        #enterBtn {
-            margin-top: 30px;
-            width: 100%;
-            padding: 14px 18px;
-            border: 1px solid rgba(82, 219, 176, 0.42);
-            background: rgba(28, 125, 102, 0.08);
-            color: #8ce8ca;
-            letter-spacing: 0.16em;
-            font-size: 11px;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                border-color 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        #enterBtn:hover {
-            background: rgba(28, 125, 102, 0.18);
-            border-color: rgba(82, 219, 176, 0.75);
-            box-shadow: 0 0 24px rgba(50, 207, 164, 0.08);
-        }
-
-        /* =========================
-           WORKSTATION
-           ========================= */
-
-        #workstation {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transform: scale(1.015);
-            transition:
-                opacity 1s ease,
-                transform 1s ease;
-        }
-
-        #workstation.active {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .topbar {
-            height: 62px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 22px;
-            border-bottom: 1px solid rgba(160,180,180,0.12);
-            background: rgba(5,8,9,0.92);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #42d7ae;
-            box-shadow: 0 0 12px rgba(66,215,174,0.7);
-        }
-
-        .brand-main {
-            font-size: 11px;
-            letter-spacing: 0.16em;
-            color: #c4d2d2;
-        }
-
-        .brand-sub {
-            margin-top: 3px;
-            color: #59696b;
-            font-size: 9px;
-            letter-spacing: 0.12em;
-        }
-
-        .top-status {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            color: #607173;
-            font-size: 9px;
-            letter-spacing: 0.12em;
-        }
-
-        .live {
-            color: #52d9b1;
-        }
-
-        .layout {
-            height: calc(100% - 62px);
-            display: grid;
-            grid-template-columns: minmax(0, 1.6fr) minmax(270px, 0.75fr);
-            gap: 1px;
-            background: rgba(150,180,180,0.08);
-        }
-
-        .main-column,
-        .side-column {
-            min-width: 0;
-            background: #060909;
-        }
-
-        .main-column {
-            display: grid;
-            grid-template-rows: 0.9fr 1.1fr;
-            gap: 1px;
-        }
-
-        .side-column {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-            gap: 1px;
-        }
-
-        .panel {
+        #v2-app {
+            min-height: 100vh;
             position: relative;
             overflow: hidden;
-            padding: 18px;
             background:
-                linear-gradient(
-                    135deg,
-                    rgba(255,255,255,0.012),
-                    rgba(255,255,255,0)
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(255,255,255,0.95),
+                    transparent 48%
                 ),
-                #070a0b;
+                #f5f6f8;
         }
 
-        .panel-header {
+        #v2-main {
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            justify-content: center;
+            padding: 32px;
+            transition:
+                opacity 0.3s ease,
+                transform 0.2s ease,
+                filter 0.15s ease;
         }
 
-        .panel-title {
-            color: #7f9294;
-            font-size: 9px;
+        .workspace {
+            width: min(880px, 92vw);
+            padding: 54px;
+            border: 1px solid rgba(20,25,30,0.09);
+            border-radius: 24px;
+            background: rgba(255,255,255,0.76);
+            box-shadow:
+                0 30px 80px rgba(20,25,30,0.09),
+                0 4px 16px rgba(20,25,30,0.04);
+            backdrop-filter: blur(18px);
+        }
+
+        .workspace-label {
+            font-size: 11px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-        }
-
-        .panel-code {
-            color: #455355;
-            font-size: 9px;
-        }
-
-        /* =========================
-           SYSTEM OVERVIEW
-           ========================= */
-
-        .overview {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 20px;
-            height: calc(100% - 30px);
-        }
-
-        .system-identity {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding-left: 14px;
-            border-left: 1px solid rgba(100,150,145,0.15);
-        }
-
-        .identity-label {
-            color: #4f6062;
-            font-size: 9px;
-            letter-spacing: 0.2em;
-        }
-
-        .identity-name {
-            margin-top: 9px;
-            color: #cdd9d9;
-            font-size: clamp(20px, 3vw, 31px);
-            letter-spacing: -0.035em;
-        }
-
-        .identity-meta {
-            margin-top: 12px;
-            color: #5c6b6d;
-            font-size: 10px;
-            line-height: 1.8;
-        }
-
-        .health {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .health-row {
-            display: flex;
-            justify-content: space-between;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(130,150,150,0.07);
-            font-size: 10px;
-        }
-
-        .health-row span:first-child {
-            color: #526264;
-        }
-
-        .health-row span:last-child {
-            color: #7bcbb5;
-        }
-
-        .health-row.warn span:last-child {
-            color: #d2ad67;
-        }
-
-        .health-row.critical span:last-child {
-            color: #dc6969;
-        }
-
-        /* =========================
-           EVENT STREAM
-           ========================= */
-
-        .event-stream {
-            height: calc(100% - 28px);
-            overflow: hidden;
-            font-size: 10px;
-        }
-
-        .event {
-            display: grid;
-            grid-template-columns: 74px 48px 1fr;
-            gap: 10px;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(120,140,140,0.045);
-            animation: eventIn 0.25s ease;
-        }
-
-        .event-time {
-            color: #3f5052;
-        }
-
-        .event-type {
-            color: #56706d;
-        }
-
-        .event-text {
-            color: #7f9294;
-        }
-
-        .event.warn .event-type,
-        .event.warn .event-text {
-            color: #bca56d;
-        }
-
-        .event.critical .event-type,
-        .event.critical .event-text {
-            color: #d56767;
-        }
-
-        .event.success .event-type {
-            color: #59bd9e;
-        }
-
-        @keyframes eventIn {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* =========================
-           TELEMETRY
-           ========================= */
-
-        .metric {
+            color: #7b8189;
             margin-bottom: 18px;
         }
 
-        .metric-head {
-            display: flex;
-            justify-content: space-between;
-            color: #647476;
-            font-size: 9px;
+        .workspace h1 {
+            margin: 0;
+            font-size: clamp(34px, 6vw, 58px);
+            letter-spacing: -0.045em;
+            font-weight: 700;
+        }
+
+        .workspace p {
+            max-width: 610px;
+            margin: 18px 0 0;
+            color: #69707a;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .workspace-status {
+            margin-top: 34px;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 13px;
+            border-radius: 999px;
+            background: rgba(20,25,30,0.045);
+            color: #555c65;
+            font-size: 11px;
             letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
-        .metric-value {
-            color: #a2b5b5;
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #40a36b;
+            box-shadow: 0 0 0 4px rgba(64,163,107,0.11);
         }
 
-        .meter {
-            height: 3px;
-            margin-top: 8px;
-            background: #111719;
+        /* =====================================================
+           EFFECT LAYERS
+        ===================================================== */
+
+        #v2-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
             overflow: hidden;
         }
 
-        .meter-fill {
-            height: 100%;
-            width: 20%;
-            background: #5bbca4;
-            transition: width 0.7s ease;
+        #v2-overlay.active {
+            opacity: 1;
         }
 
-        .meter-fill.warn {
-            background: #b9a05f;
-        }
-
-        .meter-fill.critical {
-            background: #c95f5f;
-        }
-
-        /* =========================
-           PROCESS LIST
-           ========================= */
-
-        .process-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .process {
-            display: grid;
-            grid-template-columns: 1fr 52px 52px;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(130,150,150,0.05);
-            font-size: 9px;
-        }
-
-        .process-name {
-            color: #758688;
-        }
-
-        .process-cpu {
-            color: #657779;
-            text-align: right;
-        }
-
-        .process-state {
-            color: #5bb59c;
-            text-align: right;
-        }
-
-        .process.warn .process-state {
-            color: #c0a461;
-        }
-
-        .process.critical .process-state {
-            color: #ce6565;
-        }
-
-        /* =========================
-           CHART
-           ========================= */
-
-        #chart {
-            width: 100%;
-            height: 100px;
-            display: block;
-            opacity: 0.75;
-        }
-
-        /* =========================
-           FREEZE
-           ========================= */
-
-        body.visual-freeze {
-            cursor: none !important;
-        }
-
-        body.visual-freeze *,
-        body.visual-freeze *::before,
-        body.visual-freeze *::after {
-            animation-play-state: paused !important;
-            transition: none !important;
-        }
-
-        body.visual-freeze #simApp {
-            filter:
-                brightness(0.72)
-                contrast(1.15)
-                saturate(0.6);
-        }
-
-        body.visual-freeze::before {
-            content: "";
+        #v2-blackout {
             position: fixed;
             inset: 0;
-            z-index: 200;
-            pointer-events: all;
-            background:
-                repeating-linear-gradient(
-                    to bottom,
-                    transparent 0px,
-                    transparent 3px,
-                    rgba(255,255,255,0.018) 4px
-                );
-        }
-
-        /* =========================
-           GLITCH
-           ========================= */
-
-        body.glitch #simApp {
-            animation: screenGlitch 0.09s steps(2) infinite;
-        }
-
-        body.glitch .panel {
-            filter: contrast(1.3);
-        }
-
-        @keyframes screenGlitch {
-            0% {
-                transform: translate(0);
-            }
-            25% {
-                transform: translate(-2px, 1px);
-            }
-            50% {
-                transform: translate(3px, -1px);
-            }
-            75% {
-                transform: translate(-1px, -2px);
-            }
-            100% {
-                transform: translate(0);
-            }
-        }
-
-        /* =========================
-           BLACKOUT
-           ========================= */
-
-        #blackout {
-            position: fixed;
-            inset: 0;
-            z-index: 300;
+            z-index: 11000;
             background: #000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.08s linear;
         }
 
-        #blackout.active {
+        #v2-blackout.active {
             opacity: 1;
         }
 
-        /* =========================
-           INCIDENT OVERLAY
-           ========================= */
-
-        #incident {
+        #v2-flash {
             position: fixed;
             inset: 0;
-            z-index: 250;
+            z-index: 12000;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #v2-status {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            z-index: 13000;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            opacity: 0;
+            white-space: nowrap;
+
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+
+            font-size: clamp(11px, 1.35vw, 15px);
+            letter-spacing: 0.17em;
+            text-transform: uppercase;
+
+            color: rgba(255,255,255,0.92);
+
+            text-shadow:
+                0 0 10px rgba(255,255,255,0.22),
+                0 0 24px rgba(255,255,255,0.10);
+
+            transition: opacity 0.08s linear;
+        }
+
+        #v2-status.visible {
+            opacity: 1;
+        }
+
+        #v2-status.warning {
+            color: #f1b866;
+            text-shadow:
+                0 0 10px rgba(241,184,102,0.32),
+                0 0 28px rgba(241,184,102,0.12);
+        }
+
+        #v2-status.error {
+            color: #ff6868;
+            text-shadow:
+                0 0 10px rgba(255,104,104,0.35),
+                0 0 28px rgba(255,104,104,0.13);
+        }
+
+        #v2-corner-status {
+            position: fixed;
+            right: 24px;
+            bottom: 22px;
+            z-index: 13000;
+            pointer-events: none;
+            opacity: 0;
+
+            padding: 7px 10px;
+
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+
+            color: rgba(255,255,255,0.72);
+            background: rgba(0,0,0,0.58);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 5px;
+
+            transition: opacity 0.08s linear;
+        }
+
+        #v2-corner-status.visible {
+            opacity: 1;
+        }
+
+        #v2-noise {
+            position: fixed;
+            inset: -50%;
+            z-index: 9000;
+            pointer-events: none;
+            opacity: 0;
+            background-image:
+                repeating-radial-gradient(
+                    circle at 0 0,
+                    rgba(255,255,255,0.13) 0,
+                    rgba(255,255,255,0.13) 1px,
+                    transparent 1px,
+                    transparent 3px
+                );
+            background-size: 4px 4px;
+            mix-blend-mode: overlay;
+            animation: v2Noise 0.12s steps(2) infinite;
+        }
+
+        #v2-noise.active {
+            opacity: 0.14;
+        }
+
+        #v2-scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 9001;
+            pointer-events: none;
+            opacity: 0;
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,0.00) 0px,
+                    rgba(0,0,0,0.00) 2px,
+                    rgba(0,0,0,0.08) 3px
+                );
+        }
+
+        #v2-scanlines.active {
+            opacity: 0.65;
+        }
+
+        #v2-browser-warning {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            z-index: 14000;
+            transform: translate(-50%, -50%) scale(0.98);
+
+            width: min(420px, calc(100vw - 40px));
+
+            padding: 22px 24px;
+
+            border-radius: 9px;
+            border: 1px solid rgba(255,255,255,0.13);
+
+            background: rgba(28,29,31,0.96);
+            color: #eee;
+
+            box-shadow:
+                0 30px 100px rgba(0,0,0,0.55),
+                0 0 0 1px rgba(0,0,0,0.3);
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            opacity: 0;
+            pointer-events: none;
+            transition:
+                opacity 0.12s ease,
+                transform 0.12s ease;
+        }
+
+        #v2-browser-warning.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .warning-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .warning-body {
+            font-size: 13px;
+            line-height: 1.55;
+            color: #b9bcc1;
+        }
+
+        .warning-footer {
+            margin-top: 17px;
+            font-size: 11px;
+            color: #777b82;
+        }
+
+        /* =====================================================
+           FAKE CRASH
+        ===================================================== */
+
+        #v2-crash {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            background:
-                radial-gradient(
-                    circle at center,
-                    rgba(150,30,30,0.08),
-                    transparent 42%
-                ),
-                #050606;
+
+            background: #090a0c;
+            color: #f2f2f2;
+
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.7s ease;
+
+            transition: opacity 0.45s ease;
         }
 
-        #incident.active {
+        #v2-crash.visible {
             opacity: 1;
-            pointer-events: auto;
         }
 
-        .incident-card {
-            width: min(700px, 88vw);
-            padding: 40px;
-            border: 1px solid rgba(185,75,75,0.24);
-            background: rgba(9,10,10,0.9);
-            box-shadow: 0 30px 100px rgba(0,0,0,0.75);
+        .crash-content {
+            width: min(680px, 88vw);
         }
 
-        .incident-label {
-            color: #a55757;
-            font-size: 10px;
-            letter-spacing: 0.25em;
+        .crash-face {
+            font-size: clamp(64px, 11vw, 110px);
+            font-weight: 200;
+            line-height: 1;
+            margin-bottom: 24px;
         }
 
-        .incident-title {
-            margin-top: 16px;
-            font-size: clamp(28px, 5vw, 50px);
+        .crash-title {
+            font-size: clamp(20px, 3vw, 30px);
             font-weight: 500;
-            color: #d6dede;
-            letter-spacing: -0.045em;
+            margin-bottom: 14px;
         }
 
-        .incident-line {
-            margin-top: 14px;
-            color: #687779;
+        .crash-description {
+            color: #a7abb1;
+            line-height: 1.65;
+            font-size: 14px;
+            max-width: 570px;
+        }
+
+        .crash-progress {
+            margin-top: 34px;
+            width: min(460px, 100%);
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+
+        .crash-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #eee;
+            transition: width 2.8s linear;
+        }
+
+        .crash-code {
+            margin-top: 18px;
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                monospace;
             font-size: 11px;
-            line-height: 1.8;
-        }
-
-        .incident-state {
-            margin-top: 28px;
-            padding: 13px;
-            background: rgba(180,50,50,0.055);
-            border-left: 2px solid #9f4f4f;
-            color: #aa7373;
-            font-size: 10px;
+            color: #686d74;
             letter-spacing: 0.08em;
         }
 
-        /* =========================
-           FINAL REVEAL
-           ========================= */
+        /* =====================================================
+           REVEAL
+        ===================================================== */
 
-        #reveal {
+        #v2-reveal {
             position: fixed;
             inset: 0;
-            z-index: 400;
+            z-index: 25000;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #050607;
+
+            background: #08090b;
+            color: #eee;
+
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.9s ease;
+            transition: opacity 0.6s ease;
         }
 
-        #reveal.active {
+        #v2-reveal.visible {
             opacity: 1;
             pointer-events: auto;
         }
 
-        .reveal-card {
-            width: min(650px, 88vw);
+        .reveal-content {
+            width: min(680px, 88vw);
             text-align: center;
         }
 
-        .reveal-title {
-            color: #8de1c6;
-            font-size: 13px;
+        .reveal-label {
+            color: #7c828a;
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                monospace;
+            font-size: 10px;
             letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
         }
 
-        .reveal-main {
-            margin-top: 18px;
-            color: #d7e1e1;
-            font-size: clamp(25px, 5vw, 42px);
+        .reveal-title {
+            font-size: clamp(28px, 5vw, 48px);
             letter-spacing: -0.04em;
+            margin: 0;
         }
 
         .reveal-text {
-            margin-top: 18px;
-            color: #647375;
-            font-size: 10px;
-            line-height: 2;
+            margin: 22px auto 0;
+            max-width: 570px;
+            color: #969ca4;
+            line-height: 1.75;
+            font-size: 14px;
         }
 
-        #restartBtn {
-            margin-top: 28px;
-            padding: 11px 20px;
-            border: 1px solid rgba(90,180,155,0.3);
-            background: transparent;
-            color: #78c8af;
+        .reveal-button {
+            margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.05);
+            color: #eee;
+            border-radius: 8px;
+            padding: 11px 18px;
+            font-size: 12px;
             cursor: pointer;
-            font-size: 10px;
-            letter-spacing: 0.12em;
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease;
         }
 
-        /* =========================
-           MOBILE
-           ========================= */
+        .reveal-button:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.28);
+        }
 
-        @media (max-width: 800px) {
-            .layout {
-                grid-template-columns: 1fr;
-                overflow: auto;
+        /* =====================================================
+           GLITCH
+        ===================================================== */
+
+        .v2-glitch {
+            animation:
+                v2GlitchX 0.12s steps(2) infinite,
+                v2GlitchY 0.17s steps(2) infinite;
+        }
+
+        .v2-rgb {
+            filter:
+                drop-shadow(-4px 0 rgba(255,0,70,0.65))
+                drop-shadow(4px 0 rgba(0,210,255,0.65));
+        }
+
+        .v2-heavy-glitch {
+            animation:
+                v2HeavyX 0.07s steps(2) infinite,
+                v2HeavyY 0.09s steps(2) infinite;
+        }
+
+        .v2-distort {
+            filter:
+                contrast(1.35)
+                saturate(1.35)
+                brightness(1.08);
+        }
+
+        @keyframes v2GlitchX {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-1px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes v2GlitchY {
+            0% { margin-top: 0; }
+            50% { margin-top: 2px; }
+            100% { margin-top: -1px; }
+        }
+
+        @keyframes v2HeavyX {
+            0% { transform: translateX(0) skewX(0deg); }
+            20% { transform: translateX(-12px) skewX(-1deg); }
+            40% { transform: translateX(15px) skewX(2deg); }
+            60% { transform: translateX(-7px) skewX(-1deg); }
+            80% { transform: translateX(9px) skewX(1deg); }
+            100% { transform: translateX(0) skewX(0deg); }
+        }
+
+        @keyframes v2HeavyY {
+            0% { margin-top: 0; }
+            30% { margin-top: 7px; }
+            60% { margin-top: -6px; }
+            100% { margin-top: 0; }
+        }
+
+        @keyframes v2Noise {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(4%, -3%); }
+            50% { transform: translate(-3%, 5%); }
+            75% { transform: translate(5%, 2%); }
+            100% { transform: translate(-2%, -4%); }
+        }
+
+        @media (max-width: 650px) {
+            #v2-main {
+                padding: 18px;
             }
 
-            .side-column {
-                display: none;
+            .workspace {
+                padding: 32px 25px;
+                border-radius: 18px;
             }
 
-            .main-column {
-                height: 100%;
+            #v2-status {
+                font-size: 10px;
+                letter-spacing: 0.12em;
             }
 
-            .topbar {
-                padding: 0 14px;
-            }
-
-            .top-status {
-                gap: 8px;
-            }
-
-            .top-status span:not(.live) {
-                display: none;
-            }
-
-            .overview {
-                grid-template-columns: 1fr;
-            }
-
-            .event {
-                grid-template-columns: 65px 42px 1fr;
-            }
-
-            .entry-card {
-                padding: 26px;
+            #v2-corner-status {
+                right: 12px;
+                bottom: 12px;
             }
         }
 
@@ -6939,9 +6734,9 @@
             *,
             *::before,
             *::after {
-                animation-duration: 0.001ms !important;
+                animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
-                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
             }
         }
     `;
@@ -6950,1518 +6745,770 @@
 
     /* =========================================================
        HTML
-       ========================================================= */
+    ========================================================= */
 
-    document.body.insertAdjacentHTML(
-        "afterbegin",
-        `
-        <div id="simApp">
+    document.body.innerHTML = `
+        <div id="v2-app">
 
-            <section id="entryScreen">
-
-                <div class="entry-card">
-
-                    <div class="entry-kicker">
-                        WORKSTATION SECURITY CONSOLE
+            <main id="v2-main">
+                <section class="workspace">
+                    <div class="workspace-label">
+                        Personal Workspace
                     </div>
 
-                    <h1 class="entry-title">
-                        Secure Session
-                    </h1>
+                    <h1>Welcome back.</h1>
 
-                    <div class="entry-subtitle">
-                        Local workstation integrity monitor<br>
-                        Session diagnostics and system telemetry
+                    <p>
+                        Your session is ready.
+                        Everything appears to be working normally.
+                    </p>
+
+                    <div class="workspace-status">
+                        <span class="status-dot"></span>
+                        Session ready
                     </div>
-
-                    <div class="entry-status">
-                        SYSTEM STATUS:
-                        <strong style="color:#79cbb2;">
-                            NOMINAL
-                        </strong>
-                    </div>
-
-                    <button id="enterBtn">
-                        INITIALIZE SECURE SESSION
-                    </button>
-
-                </div>
-
-            </section>
-
-
-            <main id="workstation">
-
-                <header class="topbar">
-
-                    <div class="brand">
-
-                        <span class="brand-dot"></span>
-
-                        <div>
-                            <div class="brand-main">
-                                WORKSTATION MONITOR
-                            </div>
-
-                            <div class="brand-sub">
-                                LOCAL SECURITY CHANNEL
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="top-status">
-                        <span id="sessionId">SESSION 7F-92-A1</span>
-                        <span id="clock">00:00:00</span>
-                        <span class="live">● LIVE</span>
-                    </div>
-
-                </header>
-
-
-                <div class="layout">
-
-                    <div class="main-column">
-
-                        <section class="panel">
-
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    System Overview
-                                </div>
-
-                                <div class="panel-code">
-                                    NODE / LOCAL
-                                </div>
-                            </div>
-
-                            <div class="overview">
-
-                                <div class="system-identity">
-
-                                    <div class="identity-label">
-                                        MONITORED WORKSTATION
-                                    </div>
-
-                                    <div class="identity-name">
-                                        LOCAL-HOST
-                                    </div>
-
-                                    <div class="identity-meta">
-                                        Integrity channel active<br>
-                                        Session authentication verified<br>
-                                        Telemetry stream operational
-                                    </div>
-
-                                </div>
-
-                                <div class="health">
-
-                                    <div class="health-row" id="healthSystem">
-                                        <span>SYSTEM</span>
-                                        <span>HEALTHY</span>
-                                    </div>
-
-                                    <div class="health-row" id="healthMemory">
-                                        <span>MEMORY</span>
-                                        <span>NOMINAL</span>
-                                    </div>
-
-                                    <div class="health-row" id="healthChannel">
-                                        <span>CONTROL CHANNEL</span>
-                                        <span>STABLE</span>
-                                    </div>
-
-                                    <div class="health-row" id="healthIntegrity">
-                                        <span>INTEGRITY</span>
-                                        <span>VERIFIED</span>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </section>
-
-
-                        <section class="panel">
-
-                            <div class="panel-header">
-
-                                <div class="panel-title">
-                                    Security Event Stream
-                                </div>
-
-                                <div class="panel-code">
-                                    LIVE
-                                </div>
-
-                            </div>
-
-                            <div
-                                id="eventStream"
-                                class="event-stream"
-                            ></div>
-
-                        </section>
-
-                    </div>
-
-
-                    <aside class="side-column">
-
-                        <section class="panel">
-
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    Live Telemetry
-                                </div>
-
-                                <div class="panel-code">
-                                    1s
-                                </div>
-                            </div>
-
-                            <div class="metric">
-
-                                <div class="metric-head">
-                                    <span>PROCESS LOAD</span>
-                                    <span
-                                        id="cpuValue"
-                                        class="metric-value"
-                                    >
-                                        18%
-                                    </span>
-                                </div>
-
-                                <div class="meter">
-                                    <div
-                                        id="cpuMeter"
-                                        class="meter-fill"
-                                        style="width:18%"
-                                    ></div>
-                                </div>
-
-                            </div>
-
-
-                            <div class="metric">
-
-                                <div class="metric-head">
-                                    <span>MEMORY</span>
-                                    <span
-                                        id="memoryValue"
-                                        class="metric-value"
-                                    >
-                                        41%
-                                    </span>
-                                </div>
-
-                                <div class="meter">
-                                    <div
-                                        id="memoryMeter"
-                                        class="meter-fill"
-                                        style="width:41%"
-                                    ></div>
-                                </div>
-
-                            </div>
-
-
-                            <div class="metric">
-
-                                <div class="metric-head">
-                                    <span>CHANNEL LOAD</span>
-                                    <span
-                                        id="channelValue"
-                                        class="metric-value"
-                                    >
-                                        12%
-                                    </span>
-                                </div>
-
-                                <div class="meter">
-                                    <div
-                                        id="channelMeter"
-                                        class="meter-fill"
-                                        style="width:12%"
-                                    ></div>
-                                </div>
-
-                            </div>
-
-
-                            <canvas id="chart"></canvas>
-
-                        </section>
-
-
-                        <section class="panel">
-
-                            <div class="panel-header">
-
-                                <div class="panel-title">
-                                    Process Activity
-                                </div>
-
-                                <div class="panel-code">
-                                    LOCAL
-                                </div>
-
-                            </div>
-
-                            <div class="process-list">
-
-                                <div class="process">
-                                    <span class="process-name">
-                                        session-core
-                                    </span>
-                                    <span class="process-cpu">2.8%</span>
-                                    <span class="process-state">
-                                        RUN
-                                    </span>
-                                </div>
-
-                                <div class="process">
-                                    <span class="process-name">
-                                        telemetry-agent
-                                    </span>
-                                    <span class="process-cpu">1.2%</span>
-                                    <span class="process-state">
-                                        RUN
-                                    </span>
-                                </div>
-
-                                <div class="process">
-                                    <span class="process-name">
-                                        integrity-monitor
-                                    </span>
-                                    <span class="process-cpu">0.9%</span>
-                                    <span class="process-state">
-                                        RUN
-                                    </span>
-                                </div>
-
-                                <div class="process">
-                                    <span class="process-name">
-                                        control-channel
-                                    </span>
-                                    <span class="process-cpu">0.4%</span>
-                                    <span class="process-state">
-                                        IDLE
-                                    </span>
-                                </div>
-
-                                <div class="process">
-                                    <span class="process-name">
-                                        ui-renderer
-                                    </span>
-                                    <span class="process-cpu">3.1%</span>
-                                    <span class="process-state">
-                                        RUN
-                                    </span>
-                                </div>
-
-                            </div>
-
-                        </section>
-
-                    </aside>
-
-                </div>
-
+                </section>
             </main>
 
-
-            <div id="blackout"></div>
-
-
-            <section id="incident">
-
-                <div class="incident-card">
-
-                    <div class="incident-label">
-                        SECURITY EVENT / CRITICAL
-                    </div>
-
-                    <div class="incident-title">
-                        WORKSTATION STATE UNKNOWN
-                    </div>
-
-                    <div class="incident-line">
-                        The local control interface has stopped responding
-                        to expected session signals.
-                    </div>
-
-                    <div class="incident-state">
-                        DISPLAY CHANNEL:
-                        UNSTABLE
-                        &nbsp;&nbsp;|&nbsp;&nbsp;
-                        CONTROL:
-                        UNAVAILABLE
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section id="reveal">
-
-                <div class="reveal-card">
-
-                    <div class="reveal-title">
-                        SIMULATION COMPLETE
-                    </div>
-
-                    <div class="reveal-main">
-                        Nothing was actually compromised.
-                    </div>
-
-                    <div class="reveal-text">
-                        This was a visual security simulation.<br><br>
-
-                        No files were accessed.<br>
-                        No accounts were accessed.<br>
-                        No network was scanned.<br>
-                        No camera, microphone or device data was accessed.<br>
-                        No browser controls were disabled.<br><br>
-
-                        All workstation events shown during the sequence
-                        were fictional.
-                    </div>
-
-                    <button id="restartBtn">
-                        RUN AGAIN
-                    </button>
-
-                </div>
-
-            </section>
-
         </div>
-        `
-    );
+
+        <div id="v2-overlay"></div>
+
+        <div id="v2-blackout"></div>
+        <div id="v2-flash"></div>
+
+        <div id="v2-noise"></div>
+        <div id="v2-scanlines"></div>
+
+        <div id="v2-status"></div>
+        <div id="v2-corner-status"></div>
+
+        <div id="v2-browser-warning">
+            <div class="warning-title">
+                This page isn't responding
+            </div>
+
+            <div class="warning-body">
+                The page appears to be taking longer than expected.
+                You can wait for the page to respond.
+            </div>
+
+            <div class="warning-footer">
+                Waiting for response...
+            </div>
+        </div>
+
+        <div id="v2-crash">
+            <div class="crash-content">
+
+                <div class="crash-face">:(</div>
+
+                <div class="crash-title">
+                    Something went wrong.
+                </div>
+
+                <div class="crash-description">
+                    The current session encountered an unexpected
+                    display failure and is attempting to recover.
+                </div>
+
+                <div class="crash-progress">
+                    <div class="crash-progress-fill"></div>
+                </div>
+
+                <div class="crash-code">
+                    RECOVERY CODE: 0x00000000
+                </div>
+
+            </div>
+        </div>
+
+        <div id="v2-reveal">
+            <div class="reveal-content">
+
+                <div class="reveal-label">
+                    Visual Simulation Complete
+                </div>
+
+                <h2 class="reveal-title">
+                    Nothing was hacked.
+                </h2>
+
+                <p class="reveal-text">
+                    This was a visual browser simulation.
+                    No files, accounts, network resources, camera,
+                    microphone, or device data were accessed.
+                    The freezes, glitches, recovery messages and
+                    crash screen were completely fictional.
+                </p>
+
+                <button class="reveal-button" id="v2-run-again">
+                    RUN AGAIN
+                </button>
+
+            </div>
+        </div>
+    `;
 
     /* =========================================================
-       DOM
-       ========================================================= */
+       ELEMENTS
+    ========================================================= */
 
-    const entryScreen = document.getElementById("entryScreen");
-    const enterBtn = document.getElementById("enterBtn");
+    const main = document.getElementById("v2-main");
+    const blackout = document.getElementById("v2-blackout");
+    const flash = document.getElementById("v2-flash");
+    const status = document.getElementById("v2-status");
+    const cornerStatus = document.getElementById("v2-corner-status");
+    const noise = document.getElementById("v2-noise");
+    const scanlines = document.getElementById("v2-scanlines");
+    const browserWarning = document.getElementById("v2-browser-warning");
+    const crash = document.getElementById("v2-crash");
+    const crashProgress = document.querySelector(".crash-progress-fill");
+    const reveal = document.getElementById("v2-reveal");
+    const runAgain = document.getElementById("v2-run-again");
 
-    const workstation = document.getElementById("workstation");
-
-    const eventStream = document.getElementById("eventStream");
-
-    const clock = document.getElementById("clock");
-
-    const blackoutLayer = document.getElementById("blackout");
-    const incident = document.getElementById("incident");
-    const reveal = document.getElementById("reveal");
-
-    const restartBtn = document.getElementById("restartBtn");
-
-    const cpuValue = document.getElementById("cpuValue");
-    const memoryValue = document.getElementById("memoryValue");
-    const channelValue = document.getElementById("channelValue");
-
-    const cpuMeter = document.getElementById("cpuMeter");
-    const memoryMeter = document.getElementById("memoryMeter");
-    const channelMeter = document.getElementById("channelMeter");
-
-    const healthSystem = document.getElementById("healthSystem");
-    const healthMemory = document.getElementById("healthMemory");
-    const healthChannel = document.getElementById("healthChannel");
-    const healthIntegrity = document.getElementById("healthIntegrity");
-
-    const chart = document.getElementById("chart");
-    const ctx = chart.getContext("2d");
-
-    /* =========================================================
-       STATE
-       ========================================================= */
-
-    let running = false;
-    let visualPaused = false;
-    let revealShown = false;
-
-    let startTime = 0;
-
-    let clockTimer = null;
-    let telemetryTimer = null;
-    let chartTimer = null;
-
-    let chartData = [];
+    let frozen = false;
+    let stopped = false;
 
     /* =========================================================
        HELPERS
-       ========================================================= */
+    ========================================================= */
 
     const sleep = (ms) =>
         new Promise(resolve => setTimeout(resolve, ms));
 
-
-    function random(min, max) {
-        return Math.floor(
-            Math.random() * (max - min + 1)
-        ) + min;
+    async function wait(ms) {
+        if (stopped) return;
+        await sleep(ms);
     }
 
-
-    function timestamp() {
-        const elapsed = Math.max(
-            0,
-            Date.now() - startTime
-        );
-
-        const seconds = Math.floor(elapsed / 1000);
-
-        const h = String(
-            Math.floor(seconds / 3600)
-        ).padStart(2, "0");
-
-        const m = String(
-            Math.floor((seconds % 3600) / 60)
-        ).padStart(2, "0");
-
-        const s = String(
-            seconds % 60
-        ).padStart(2, "0");
-
-        return `${h}:${m}:${s}`;
+    function addClass(className) {
+        main.classList.add(className);
     }
 
+    function removeClass(className) {
+        main.classList.remove(className);
+    }
 
-    function addEvent(
-        text,
-        type = "INFO",
-        level = ""
+    async function showStatus(
+        message,
+        duration = 800,
+        type = "",
+        position = "center"
     ) {
-        const item = document.createElement("div");
-
-        item.className =
-            `event ${level}`;
-
-        item.innerHTML = `
-            <span class="event-time">
-                ${timestamp()}
-            </span>
-
-            <span class="event-type">
-                ${type}
-            </span>
-
-            <span class="event-text">
-                ${text}
-            </span>
-        `;
-
-        eventStream.appendChild(item);
-
-        while (eventStream.children.length > 16) {
-            eventStream.removeChild(
-                eventStream.firstElementChild
-            );
-        }
-
-        eventStream.scrollTop =
-            eventStream.scrollHeight;
-    }
-
-
-    function setHealth(element, value, level = "") {
-        element.classList.remove(
-            "warn",
-            "critical"
-        );
-
-        if (level) {
-            element.classList.add(level);
-        }
+        if (stopped) return;
 
         const target =
-            element.querySelector("span:last-child");
+            position === "corner"
+                ? cornerStatus
+                : status;
 
-        target.textContent = value;
+        target.textContent = message;
+
+        if (target === status) {
+            status.className = "";
+            status.classList.add("visible");
+
+            if (type) {
+                status.classList.add(type);
+            }
+        } else {
+            cornerStatus.className = "visible";
+
+            if (type) {
+                cornerStatus.classList.add(type);
+            }
+        }
+
+        await sleep(duration);
+
+        target.classList.remove("visible");
+        target.classList.remove("warning");
+        target.classList.remove("error");
     }
 
-
-    function setMetric(
-        valueElement,
-        meterElement,
-        value,
-        level = ""
+    async function blinkStatus(
+        message,
+        duration = 500,
+        type = "",
+        position = "center"
     ) {
-        valueElement.textContent =
-            `${Math.round(value)}%`;
-
-        meterElement.style.width =
-            `${Math.min(100, Math.max(0, value))}%`;
-
-        meterElement.classList.remove(
-            "warn",
-            "critical"
-        );
-
-        if (level) {
-            meterElement.classList.add(level);
-        }
+        await showStatus(message, duration, type, position);
     }
 
+    async function flashScreen(duration = 90) {
+        flash.style.opacity = "1";
+        await sleep(duration);
+        flash.style.opacity = "0";
+    }
 
-    async function glitch(duration = 500) {
-        document.body.classList.add("glitch");
+    async function black(duration = 500) {
+        blackout.classList.add("active");
+        await sleep(duration);
+        blackout.classList.remove("active");
+    }
+
+    async function glitch(duration = 500, heavy = false) {
+        addClass(heavy ? "v2-heavy-glitch" : "v2-glitch");
+
+        noise.classList.add("active");
+        scanlines.classList.add("active");
 
         await sleep(duration);
 
-        document.body.classList.remove("glitch");
+        removeClass(heavy ? "v2-heavy-glitch" : "v2-glitch");
+
+        noise.classList.remove("active");
+        scanlines.classList.remove("active");
     }
 
+    async function rgb(duration = 500) {
+        addClass("v2-rgb");
+        await sleep(duration);
+        removeClass("v2-rgb");
+    }
 
-    async function blackout(duration = 1500) {
-        blackoutLayer.classList.add("active");
+    async function distort(duration = 400) {
+        addClass("v2-distort");
+        await sleep(duration);
+        removeClass("v2-distort");
+    }
+
+    async function visualFreeze(duration = 2500) {
+        frozen = true;
+
+        main.style.pointerEvents = "none";
 
         await sleep(duration);
 
-        blackoutLayer.classList.remove("active");
+        main.style.pointerEvents = "";
+        frozen = false;
     }
 
-
-    /*
-       Important:
-       This only freezes the SIMULATION UI.
-       It does not disable browser refresh,
-       browser menus, tabs, or OS controls.
-    */
-
-    async function visualFreeze(duration = 3500) {
-
-        visualPaused = true;
-
-        addEvent(
-            "display renderer stopped responding",
-            "WARN",
-            "warn"
-        );
-
-        document.body.classList.add(
-            "visual-freeze"
-        );
+    async function browserUnresponsive(duration = 2400) {
+        browserWarning.classList.add("visible");
 
         await sleep(duration);
 
-        document.body.classList.remove(
-            "visual-freeze"
-        );
-
-        visualPaused = false;
-
-        await glitch(550);
+        browserWarning.classList.remove("visible");
     }
-
-
-    function requestFullscreen() {
-        const element = document.documentElement;
-
-        if (
-            element.requestFullscreen &&
-            !document.fullscreenElement
-        ) {
-            element.requestFullscreen()
-                .catch(() => {});
-        }
-    }
-
 
     /* =========================================================
-       CLOCK
-       ========================================================= */
+       PAGE-LOCAL INPUT FREEZE
+       Browser controls such as refresh/address bar remain
+       untouched.
+    ========================================================= */
 
-    function startClock() {
+    document.addEventListener(
+        "keydown",
+        event => {
+            if (!frozen) return;
 
-        clearInterval(clockTimer);
-
-        clockTimer = setInterval(() => {
-
-            if (
-                !running ||
-                visualPaused
-            ) {
+            if (event.key === "Escape") {
+                frozen = false;
                 return;
             }
 
-            clock.textContent =
-                timestamp();
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        true
+    );
 
-        }, 250);
-    }
+    document.addEventListener(
+        "click",
+        event => {
+            if (!frozen) return;
 
-
-    /* =========================================================
-       TELEMETRY
-       ========================================================= */
-
-    function startTelemetry() {
-
-        clearInterval(telemetryTimer);
-
-        telemetryTimer = setInterval(() => {
-
-            if (
-                !running ||
-                visualPaused
-            ) {
-                return;
-            }
-
-            const cpu =
-                random(15, 28);
-
-            const memory =
-                random(36, 46);
-
-            const channel =
-                random(8, 18);
-
-            setMetric(
-                cpuValue,
-                cpuMeter,
-                cpu
-            );
-
-            setMetric(
-                memoryValue,
-                memoryMeter,
-                memory
-            );
-
-            setMetric(
-                channelValue,
-                channelMeter,
-                channel
-            );
-
-            chartData.push(cpu);
-
-            if (chartData.length > 50) {
-                chartData.shift();
-            }
-
-            drawChart();
-
-        }, 900);
-    }
-
+            event.preventDefault();
+            event.stopPropagation();
+        },
+        true
+    );
 
     /* =========================================================
-       CHART
-       ========================================================= */
+       STAGE 1
+       NORMAL PAGE
+    ========================================================= */
 
-    function resizeChart() {
+    async function stageNormal() {
 
-        const rect =
-            chart.getBoundingClientRect();
+        await wait(1800);
 
-        const dpr =
-            window.devicePixelRatio || 1;
-
-        chart.width =
-            rect.width * dpr;
-
-        chart.height =
-            rect.height * dpr;
-
-        ctx.setTransform(
-            dpr,
-            0,
-            0,
-            dpr,
-            0,
-            0
+        // Small, believable status flash.
+        await blinkStatus(
+            "CONNECTED",
+            650,
+            "",
+            "corner"
         );
 
-        drawChart();
-    }
+        await wait(2100);
 
-
-    function drawChart() {
-
-        const width =
-            chart.clientWidth;
-
-        const height =
-            chart.clientHeight;
-
-        ctx.clearRect(
-            0,
-            0,
-            width,
-            height
+        await blinkStatus(
+            "SESSION READY",
+            700,
+            "",
+            "corner"
         );
 
-        if (!chartData.length) {
-            return;
-        }
+        await wait(2600);
 
-        ctx.beginPath();
+        // Nothing dramatic yet.
+        await blinkStatus(
+            "SYNCED",
+            520,
+            "",
+            "corner"
+        );
 
-        chartData.forEach((value, index) => {
-
-            const x =
-                (index /
-                    Math.max(
-                        1,
-                        chartData.length - 1
-                    )
-                ) * width;
-
-            const normalized =
-                (value - 10) / 30;
-
-            const y =
-                height -
-                normalized * height;
-
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-
-        });
-
-        ctx.strokeStyle =
-            "rgba(90, 190, 165, 0.55)";
-
-        ctx.lineWidth = 1;
-
-        ctx.stroke();
+        await wait(3000);
     }
-
 
     /* =========================================================
-       NORMAL STATE
-       ========================================================= */
+       STAGE 2
+       FIRST SUBTLE ANOMALY
+    ========================================================= */
 
-    async function normalSystem() {
+    async function stageFirstAnomaly() {
 
-        addEvent(
-            "integrity verification completed",
-            "OK",
-            "success"
+        await flashScreen(75);
+
+        await wait(500);
+
+        await blinkStatus(
+            "VERIFYING...",
+            700
         );
 
-        await sleep(1400);
+        await wait(900);
 
-        addEvent(
-            "session token validated",
-            "OK",
-            "success"
+        addClass("v2-glitch");
+
+        await sleep(130);
+
+        removeClass("v2-glitch");
+
+        await wait(1200);
+
+        await blinkStatus(
+            "CONNECTION STABLE",
+            600,
+            "",
+            "corner"
         );
 
-        await sleep(1300);
+        await wait(1700);
 
-        addEvent(
-            "telemetry stream synchronized",
-            "OK",
-            "success"
+        await rgb(260);
+
+        await wait(850);
+
+        await blinkStatus(
+            "CHECKING DISPLAY...",
+            800
         );
 
-        await sleep(1700);
-
-        addEvent(
-            "no integrity anomalies detected",
-            "INFO"
-        );
-
-        await sleep(1700);
-
-        addEvent(
-            "background process audit completed",
-            "OK",
-            "success"
-        );
-
-        await sleep(1700);
-
-        addEvent(
-            "control channel heartbeat stable",
-            "OK",
-            "success"
-        );
-
-        await sleep(1800);
+        await wait(1300);
     }
 
-
     /* =========================================================
-       SUBTLE ANOMALY
-       ========================================================= */
+       STAGE 3
+       SOMETHING IS ACTUALLY WRONG
+    ========================================================= */
 
-    async function subtleAnomaly() {
+    async function stageFailureOne() {
 
-        addEvent(
-            "telemetry response delayed by 182ms",
-            "WARN",
-            "warn"
+        await blinkStatus(
+            "RESPONSE DELAYED",
+            850,
+            "warning"
         );
 
-        setMetric(
-            channelValue,
-            channelMeter,
-            31,
-            "warn"
+        await wait(450);
+
+        await glitch(430);
+
+        await wait(700);
+
+        await blinkStatus(
+            "RETRIEVING SESSION STATE...",
+            1050
         );
 
-        setHealth(
-            healthChannel,
-            "DEGRADED",
-            "warn"
+        await wait(600);
+
+        await visualFreeze(2200);
+
+        await black(500);
+
+        await wait(400);
+
+        await blinkStatus(
+            "RESTORING DISPLAY...",
+            950
         );
 
-        await sleep(1700);
+        await wait(600);
 
-        addEvent(
-            "control heartbeat restored",
-            "INFO"
+        await glitch(350);
+
+        await wait(700);
+
+        await blinkStatus(
+            "SESSION RECOVERED",
+            700,
+            "",
+            "corner"
         );
 
-        setMetric(
-            channelValue,
-            channelMeter,
-            18
-        );
-
-        await sleep(1300);
-
-        addEvent(
-            "renderer frame synchronization drift detected",
-            "WARN",
-            "warn"
-        );
-
-        await sleep(1700);
-
-        addEvent(
-            "synchronization recovered",
-            "INFO"
-        );
-
-        await sleep(1500);
+        await wait(2400);
     }
 
+    /* =========================================================
+       STAGE 4
+       RECOVERY LOOKS NORMAL
+    ========================================================= */
+
+    async function stageRecovery() {
+
+        await wait(1000);
+
+        await blinkStatus(
+            "CONNECTION RESTORED",
+            750,
+            "",
+            "corner"
+        );
+
+        await wait(2200);
+
+        await blinkStatus(
+            "ALL SYSTEMS NORMAL",
+            650,
+            "",
+            "corner"
+        );
+
+        await wait(2300);
+
+        // Contradiction begins.
+        await blinkStatus(
+            "CONNECTION LOST",
+            700,
+            "warning"
+        );
+
+        await wait(300);
+
+        await blinkStatus(
+            "CONNECTED",
+            500,
+            "",
+            "corner"
+        );
+
+        await wait(1800);
+    }
 
     /* =========================================================
-       ANOMALY CASCADE
-       ========================================================= */
+       STAGE 5
+       FAKE BROWSER UNRESPONSIVE STATE
+    ========================================================= */
 
-    async function anomalyCascade() {
+    async function stageUnresponsive() {
 
-        addEvent(
-            "unexpected session state transition",
-            "WARN",
-            "warn"
+        await glitch(600);
+
+        await wait(350);
+
+        await blinkStatus(
+            "SESSION INTERRUPTED",
+            950,
+            "warning"
         );
 
-        setHealth(
-            healthSystem,
-            "UNSTABLE",
-            "warn"
+        await wait(500);
+
+        await browserUnresponsive(2400);
+
+        await visualFreeze(3300);
+
+        await black(850);
+
+        await wait(500);
+    }
+
+    /* =========================================================
+       STAGE 6
+       CORRUPTED RECOVERY
+    ========================================================= */
+
+    async function stageCorruptedRecovery() {
+
+        await blinkStatus(
+            "RECOVERY IN PROGRESS...",
+            1000
         );
 
-        setMetric(
-            cpuValue,
-            cpuMeter,
-            61,
-            "warn"
+        await wait(500);
+
+        await glitch(500);
+
+        await wait(450);
+
+        await blinkStatus(
+            "VERIFYING RECOVERY...",
+            850
         );
 
-        await sleep(1300);
+        await wait(650);
 
-        addEvent(
-            "telemetry sequence mismatch",
-            "WARN",
-            "warn"
+        await rgb(450);
+
+        await wait(500);
+
+        await blinkStatus(
+            "DISPLAY STATUS: UNSTABLE",
+            850,
+            "warning"
         );
 
-        setMetric(
-            memoryValue,
-            memoryMeter,
-            67,
-            "warn"
+        await wait(400);
+
+        await flashScreen(100);
+
+        await wait(500);
+
+        await blinkStatus(
+            "RESTORING...",
+            700
         );
 
-        await sleep(1200);
-
-        addEvent(
-            "control response received out of order",
-            "WARN",
-            "warn"
-        );
-
-        setMetric(
-            channelValue,
-            channelMeter,
-            73,
-            "warn"
-        );
-
-        await sleep(1100);
-
-        addEvent(
-            "integrity monitor unable to confirm state",
-            "CRITICAL",
-            "critical"
-        );
-
-        setHealth(
-            healthIntegrity,
-            "UNKNOWN",
-            "critical"
-        );
-
-        await sleep(1500);
+        await wait(450);
 
         await glitch(700);
 
-        addEvent(
-            "multiple local signals are inconsistent",
-            "CRITICAL",
-            "critical"
+        await wait(500);
+
+        await blinkStatus(
+            "RECOVERY CHANNEL UNSTABLE",
+            1000,
+            "error"
         );
 
-        await sleep(1400);
+        await wait(900);
     }
 
-
     /* =========================================================
-       FIRST FREEZE
-       ========================================================= */
+       STAGE 7
+       ESCALATION
+    ========================================================= */
 
-    async function firstFreeze() {
+    async function stageEscalation() {
 
-        addEvent(
-            "display synchronization timeout",
-            "CRITICAL",
-            "critical"
+        await wait(500);
+
+        await blinkStatus(
+            "STATE OUT OF SYNC",
+            850,
+            "warning"
         );
 
-        await sleep(700);
+        await wait(500);
+
+        await rgb(350);
+
+        await wait(250);
+
+        await blinkStatus(
+            "CONTROL UNAVAILABLE",
+            850,
+            "error"
+        );
+
+        await wait(400);
+
+        await glitch(900, true);
+
+        await wait(250);
+
+        await blinkStatus(
+            "SESSION STATE: UNKNOWN",
+            1100,
+            "error"
+        );
+
+        await wait(400);
+
+        await flashScreen(110);
+
+        await wait(350);
+
+        await blinkStatus(
+            "DO NOT CLOSE THIS WINDOW",
+            1050,
+            "error"
+        );
+
+        await wait(450);
 
         await visualFreeze(3600);
 
-        await sleep(800);
+        await black(2200);
 
-        await blackout(1200);
+        await wait(450);
+
+        await flashScreen(65);
+
+        await wait(650);
     }
 
-
     /* =========================================================
-       RECOVERY
-       ========================================================= */
+       STAGE 8
+       FAKE CRASH
+    ========================================================= */
 
-    async function recovery() {
+    async function stageCrash() {
 
-        addEvent(
-            "display channel restored",
-            "INFO"
-        );
+        crash.classList.add("visible");
 
-        setHealth(
-            healthSystem,
-            "RECOVERING",
-            "warn"
-        );
+        await wait(700);
 
-        await sleep(1100);
+        crashProgress.style.width = "42%";
 
-        addEvent(
-            "reinitializing local telemetry",
-            "INFO"
-        );
+        await wait(2300);
 
-        setMetric(
-            cpuValue,
-            cpuMeter,
-            29
-        );
+        crashProgress.style.width = "78%";
 
-        setMetric(
-            memoryValue,
-            memoryMeter,
-            48
-        );
+        await wait(1500);
 
-        setMetric(
-            channelValue,
-            channelMeter,
-            25
-        );
+        crash.querySelector(".crash-code").textContent =
+            "RECOVERY FAILED — RETRYING";
 
-        await sleep(1200);
+        await wait(1600);
 
-        addEvent(
-            "telemetry sequence partially restored",
-            "WARN",
-            "warn"
-        );
+        crashProgress.style.width = "100%";
 
-        await sleep(1300);
+        await wait(1200);
 
-        addEvent(
-            "event stream synchronization failed",
-            "WARN",
-            "warn"
-        );
+        crash.querySelector(".crash-description").textContent =
+            "The session could not restore its previous display state.";
 
-        await sleep(1300);
+        crash.querySelector(".crash-code").textContent =
+            "SESSION STATE: UNKNOWN";
 
-        addEvent(
-            "control channel state cannot be verified",
-            "CRITICAL",
-            "critical"
-        );
-
-        setHealth(
-            healthChannel,
-            "UNKNOWN",
-            "critical"
-        );
-
-        await sleep(1600);
+        await wait(2500);
     }
 
-
     /* =========================================================
-       INTERFACE RECONFIGURATION
-       ========================================================= */
+       STAGE 9
+       SILENCE
+    ========================================================= */
 
-    async function interfaceReconfiguration() {
+    async function stageSilence() {
 
-        await glitch(850);
+        crash.style.opacity = "0";
 
-        incident.classList.add("active");
+        await wait(900);
 
-        await sleep(1800);
+        crash.style.display = "none";
 
-        addEvent(
-            "display ownership state changed",
-            "CRITICAL",
-            "critical"
-        );
+        await black(1800);
 
-        await sleep(1200);
-
-        incident.classList.remove("active");
-
-        await sleep(700);
+        await wait(1200);
     }
 
-
     /* =========================================================
-       SECOND EVENT
-       ========================================================= */
-
-    async function secondEvent() {
-
-        setHealth(
-            healthSystem,
-            "UNKNOWN",
-            "critical"
-        );
-
-        setHealth(
-            healthMemory,
-            "UNVERIFIED",
-            "critical"
-        );
-
-        setHealth(
-            healthChannel,
-            "OFFLINE",
-            "critical"
-        );
-
-        addEvent(
-            "secondary control signal detected",
-            "CRITICAL",
-            "critical"
-        );
-
-        await sleep(900);
-
-        addEvent(
-            "local interface response latency: 4.8s",
-            "CRITICAL",
-            "critical"
-        );
-
-        setMetric(
-            cpuValue,
-            cpuMeter,
-            96,
-            "critical"
-        );
-
-        setMetric(
-            memoryValue,
-            memoryMeter,
-            91,
-            "critical"
-        );
-
-        setMetric(
-            channelValue,
-            channelMeter,
-            100,
-            "critical"
-        );
-
-        await sleep(1000);
-
-        await glitch(1000);
-
-        addEvent(
-            "workstation control state no longer trusted",
-            "CRITICAL",
-            "critical"
-        );
-
-        await sleep(700);
-    }
-
-
-    /* =========================================================
-       SECOND FREEZE
-       ========================================================= */
-
-    async function secondFreeze() {
-
-        await visualFreeze(3900);
-
-        await blackout(1500);
-    }
-
-
-    /* =========================================================
-       FINAL INCIDENT
-       ========================================================= */
-
-    async function finalIncident() {
-
-        incident.classList.add("active");
-
-        await sleep(1200);
-
-        const messages = [
-            "session ownership could not be confirmed",
-            "local control response unavailable",
-            "display state mismatch detected",
-            "integrity verification failed",
-            "recovery channel unavailable"
-        ];
-
-        for (const message of messages) {
-
-            addEvent(
-                message,
-                "CRITICAL",
-                "critical"
-            );
-
-            await sleep(
-                random(700, 1100)
-            );
-        }
-
-        await sleep(1500);
-    }
-
-
-    /* =========================================================
-       FINAL SILENCE
-       ========================================================= */
-
-    async function finalSilence() {
-
-        incident.classList.remove("active");
-
-        eventStream.innerHTML = "";
-
-        await sleep(900);
-
-        addEvent(
-            "SESSION STATE",
-            "INFO"
-        );
-
-        await sleep(1000);
-
-        addEvent(
-            "UNKNOWN",
-            "CRITICAL",
-            "critical"
-        );
-
-        await sleep(1200);
-
-        await blackout(1800);
-    }
-
-
-    /* =========================================================
+       STAGE 10
        REVEAL
-       ========================================================= */
+    ========================================================= */
 
-    async function showReveal() {
+    async function stageReveal() {
 
-        revealShown = true;
-
-        reveal.classList.add("active");
-
-        if (
-            document.fullscreenElement &&
-            document.exitFullscreen
-        ) {
-            document.exitFullscreen()
-                .catch(() => {});
-        }
+        reveal.classList.add("visible");
     }
 
-
     /* =========================================================
-       FULL SIMULATION
-       ========================================================= */
+       MAIN SEQUENCE
+    ========================================================= */
 
     async function runSimulation() {
 
-        if (running) {
-            return;
-        }
+        stopped = false;
 
-        running = true;
-        revealShown = false;
+        crash.style.display = "flex";
+        crash.style.opacity = "";
+        crash.classList.remove("visible");
 
-        startTime = Date.now();
+        reveal.classList.remove("visible");
 
-        entryScreen.classList.add("hidden");
+        crashProgress.style.width = "0%";
 
-        await sleep(900);
+        crash.querySelector(".crash-description").textContent =
+            "The current session encountered an unexpected display failure and is attempting to recover.";
 
-        workstation.classList.add("active");
+        crash.querySelector(".crash-code").textContent =
+            "RECOVERY CODE: 0x00000000";
 
-        startClock();
-        startTelemetry();
+        await stageNormal();
 
-        chartData = [
-            17, 18, 16, 20, 19, 18,
-            21, 17, 22, 20, 19
-        ];
+        if (stopped) return;
 
-        resizeChart();
+        await stageFirstAnomaly();
 
-        addEvent(
-            "secure workstation session initialized",
-            "OK",
-            "success"
-        );
+        if (stopped) return;
 
-        await sleep(1200);
+        await stageFailureOne();
 
-        addEvent(
-            "local integrity channel established",
-            "OK",
-            "success"
-        );
+        if (stopped) return;
 
-        await sleep(1200);
+        await stageRecovery();
 
-        await normalSystem();
+        if (stopped) return;
 
-        /* ~25 sec */
+        await stageUnresponsive();
 
-        await subtleAnomaly();
+        if (stopped) return;
 
-        /* ~34 sec */
+        await stageCorruptedRecovery();
 
-        await anomalyCascade();
+        if (stopped) return;
 
-        /* ~44 sec */
+        await stageEscalation();
 
-        await firstFreeze();
+        if (stopped) return;
 
-        /* ~51 sec */
+        await stageCrash();
 
-        await recovery();
+        if (stopped) return;
 
-        /* ~62 sec */
+        await stageSilence();
 
-        await interfaceReconfiguration();
+        if (stopped) return;
 
-        /* ~67 sec */
-
-        await secondEvent();
-
-        /* ~74 sec */
-
-        await secondFreeze();
-
-        /* ~81 sec */
-
-        await finalIncident();
-
-        /* ~90 sec */
-
-        await finalSilence();
-
-        /* ~95 sec */
-
-        await showReveal();
-
-        running = false;
+        await stageReveal();
     }
 
+    /* =========================================================
+       RUN AGAIN
+    ========================================================= */
+
+    runAgain.addEventListener("click", () => {
+        location.reload();
+    });
 
     /* =========================================================
-       INPUT HANDLING
-       ========================================================= */
+       START AUTOMATICALLY
+    ========================================================= */
 
-    enterBtn.addEventListener(
-        "click",
-        () => {
-
-            requestFullscreen();
-
+    window.addEventListener("load", () => {
+        setTimeout(() => {
             runSimulation();
-
-        }
-    );
-
-
-    restartBtn.addEventListener(
-        "click",
-        () => {
-            window.location.reload();
-        }
-    );
-
-
-    /*
-       These handlers only suppress interaction INSIDE
-       the simulation while it is visually frozen.
-
-       Browser-level commands such as Cmd/Ctrl+R remain
-       controlled by the browser.
-    */
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            if (
-                visualPaused &&
-                event.target.closest("#simApp")
-            ) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-        },
-        true
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                visualPaused &&
-                event.target.closest("#simApp")
-            ) {
-
-                /*
-                   Keep browser/system escape available.
-                */
-
-                if (event.key === "Escape") {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-        },
-        true
-    );
-
-
-    document.addEventListener(
-        "mousemove",
-        event => {
-
-            if (visualPaused) {
-                event.stopPropagation();
-            }
-
-        },
-        true
-    );
-
-
-    /* =========================================================
-       ESCAPE
-       ========================================================= */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape" &&
-                revealShown
-            ) {
-                return;
-            }
-
-            if (
-                event.key === "Escape" &&
-                document.fullscreenElement &&
-                document.exitFullscreen
-            ) {
-                document.exitFullscreen()
-                    .catch(() => {});
-            }
-
-        }
-    );
-
-
-    /* =========================================================
-       RESIZE
-       ========================================================= */
-
-    window.addEventListener(
-        "resize",
-        resizeChart
-    );
-
-
-    /* =========================================================
-       INITIAL CHART
-       ========================================================= */
-
-    chartData = [
-        17, 18, 16, 20, 19, 18,
-        21, 17, 22, 20, 19
-    ];
-
-    resizeChart();
+        }, 1100);
+    });
 
 })();
-
 
 
 
