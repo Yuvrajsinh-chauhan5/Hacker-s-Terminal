@@ -6149,16 +6149,23 @@
 
 // })();
 
-
 (() => {
     "use strict";
 
-    /* =========================================================
-       HACKER'S TERMINAL — V2
-       Visual browser-local simulation only.
-       No files, network, accounts, camera, microphone, or
-       system controls are accessed.
-    ========================================================= */
+    /*
+     * HACKER'S TERMINAL — V2
+     * Visual browser-local simulation only.
+     *
+     * No:
+     * - real account access
+     * - network scanning
+     * - file/device access
+     * - camera/microphone access
+     * - credential collection
+     * - browser-control interference
+     *
+     * Browser refresh/navigation remains controlled by the browser.
+     */
 
     const style = document.createElement("style");
 
@@ -6171,562 +6178,540 @@
         body {
             margin: 0;
             width: 100%;
-            min-height: 100%;
-            background: #f5f6f8;
+            height: 100%;
+            overflow: hidden;
+            background: #050607;
             font-family:
                 Inter,
+                ui-sans-serif,
+                system-ui,
                 -apple-system,
                 BlinkMacSystemFont,
                 "Segoe UI",
                 sans-serif;
-            overflow-x: hidden;
         }
 
         body {
-            min-height: 100vh;
-            color: #17191d;
-            transition:
-                background 0.25s ease,
-                filter 0.2s ease;
+            color: #e9edf0;
+            user-select: none;
+            cursor: default;
         }
 
-        #v2-app {
-            min-height: 100vh;
-            position: relative;
+        #v2-stage {
+            position: fixed;
+            inset: 0;
             overflow: hidden;
             background:
                 radial-gradient(
-                    circle at 50% 0%,
-                    rgba(255,255,255,0.95),
+                    circle at 50% 45%,
+                    rgba(70, 75, 80, 0.10),
                     transparent 48%
                 ),
-                #f5f6f8;
-        }
-
-        #v2-main {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px;
+                #050607;
             transition:
-                opacity 0.3s ease,
-                transform 0.2s ease,
-                filter 0.15s ease;
-        }
-
-        .workspace {
-            width: min(880px, 92vw);
-            padding: 54px;
-            border: 1px solid rgba(20,25,30,0.09);
-            border-radius: 24px;
-            background: rgba(255,255,255,0.76);
-            box-shadow:
-                0 30px 80px rgba(20,25,30,0.09),
-                0 4px 16px rgba(20,25,30,0.04);
-            backdrop-filter: blur(18px);
-        }
-
-        .workspace-label {
-            font-size: 11px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #7b8189;
-            margin-bottom: 18px;
-        }
-
-        .workspace h1 {
-            margin: 0;
-            font-size: clamp(34px, 6vw, 58px);
-            letter-spacing: -0.045em;
-            font-weight: 700;
-        }
-
-        .workspace p {
-            max-width: 610px;
-            margin: 18px 0 0;
-            color: #69707a;
-            line-height: 1.7;
-            font-size: 15px;
-        }
-
-        .workspace-status {
-            margin-top: 34px;
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            padding: 9px 13px;
-            border-radius: 999px;
-            background: rgba(20,25,30,0.045);
-            color: #555c65;
-            font-size: 11px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #40a36b;
-            box-shadow: 0 0 0 4px rgba(64,163,107,0.11);
-        }
-
-        /* =====================================================
-           EFFECT LAYERS
-        ===================================================== */
-
-        #v2-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 10000;
-            pointer-events: none;
-            opacity: 0;
-            overflow: hidden;
-        }
-
-        #v2-overlay.active {
-            opacity: 1;
-        }
-
-        #v2-blackout {
-            position: fixed;
-            inset: 0;
-            z-index: 11000;
-            background: #000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.08s linear;
-        }
-
-        #v2-blackout.active {
-            opacity: 1;
-        }
-
-        #v2-flash {
-            position: fixed;
-            inset: 0;
-            z-index: 12000;
-            background: #fff;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #v2-status {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            z-index: 13000;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            opacity: 0;
-            white-space: nowrap;
-
-            font-family:
-                "SFMono-Regular",
-                Consolas,
-                "Liberation Mono",
-                monospace;
-
-            font-size: clamp(11px, 1.35vw, 15px);
-            letter-spacing: 0.17em;
-            text-transform: uppercase;
-
-            color: rgba(255,255,255,0.92);
-
-            text-shadow:
-                0 0 10px rgba(255,255,255,0.22),
-                0 0 24px rgba(255,255,255,0.10);
-
-            transition: opacity 0.08s linear;
-        }
-
-        #v2-status.visible {
-            opacity: 1;
-        }
-
-        #v2-status.warning {
-            color: #f1b866;
-            text-shadow:
-                0 0 10px rgba(241,184,102,0.32),
-                0 0 28px rgba(241,184,102,0.12);
-        }
-
-        #v2-status.error {
-            color: #ff6868;
-            text-shadow:
-                0 0 10px rgba(255,104,104,0.35),
-                0 0 28px rgba(255,104,104,0.13);
-        }
-
-        #v2-corner-status {
-            position: fixed;
-            right: 24px;
-            bottom: 22px;
-            z-index: 13000;
-            pointer-events: none;
-            opacity: 0;
-
-            padding: 7px 10px;
-
-            font-family:
-                "SFMono-Regular",
-                Consolas,
-                "Liberation Mono",
-                monospace;
-
-            font-size: 10px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-
-            color: rgba(255,255,255,0.72);
-            background: rgba(0,0,0,0.58);
-            border: 1px solid rgba(255,255,255,0.09);
-            border-radius: 5px;
-
-            transition: opacity 0.08s linear;
-        }
-
-        #v2-corner-status.visible {
-            opacity: 1;
+                filter 120ms linear,
+                transform 120ms linear,
+                opacity 150ms linear;
         }
 
         #v2-noise {
-            position: fixed;
+            position: absolute;
             inset: -50%;
-            z-index: 9000;
             pointer-events: none;
-            opacity: 0;
+            opacity: 0.035;
             background-image:
-                repeating-radial-gradient(
-                    circle at 0 0,
-                    rgba(255,255,255,0.13) 0,
-                    rgba(255,255,255,0.13) 1px,
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255,255,255,.08) 0px,
+                    rgba(255,255,255,.08) 1px,
                     transparent 1px,
                     transparent 3px
                 );
-            background-size: 4px 4px;
-            mix-blend-mode: overlay;
-            animation: v2Noise 0.12s steps(2) infinite;
-        }
-
-        #v2-noise.active {
-            opacity: 0.14;
+            animation: noiseMove .14s steps(2) infinite;
         }
 
         #v2-scanlines {
-            position: fixed;
+            position: absolute;
             inset: 0;
-            z-index: 9001;
             pointer-events: none;
             opacity: 0;
             background:
                 repeating-linear-gradient(
                     to bottom,
-                    rgba(0,0,0,0.00) 0px,
-                    rgba(0,0,0,0.00) 2px,
-                    rgba(0,0,0,0.08) 3px
+                    transparent 0px,
+                    transparent 3px,
+                    rgba(255,255,255,.035) 4px
+                );
+            transition: opacity .2s;
+        }
+
+        #v2-flash {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #v2-blackout {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            background: #000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .12s linear;
+        }
+
+        #v2-glitch-red,
+        #v2-glitch-blue {
+            position: fixed;
+            inset: 0;
+            z-index: 95;
+            pointer-events: none;
+            opacity: 0;
+            mix-blend-mode: screen;
+        }
+
+        #v2-glitch-red {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255, 0, 35, .18),
+                    transparent 40%,
+                    rgba(255, 0, 35, .08)
                 );
         }
 
-        #v2-scanlines.active {
-            opacity: 0.65;
+        #v2-glitch-blue {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(0, 120, 255, .12),
+                    transparent 55%,
+                    rgba(0, 180, 255, .08)
+                );
         }
+
+        #v2-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .25s;
+        }
+
+        #v2-status {
+            min-width: min(560px, 86vw);
+            text-align: center;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            font-size: clamp(11px, 1.1vw, 14px);
+            color: rgba(235,240,243,.72);
+            text-shadow: 0 0 18px rgba(255,255,255,.12);
+        }
+
+        #v2-status strong {
+            display: block;
+            margin-top: 13px;
+            font-size: clamp(18px, 2.5vw, 32px);
+            letter-spacing: .12em;
+            color: #f1f4f5;
+        }
+
+        /* Notification system */
+
+        #v2-notifications {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 80;
+            width: min(390px, calc(100vw - 32px));
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .v2-notification {
+            position: relative;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 12px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(24,27,30,.96),
+                    rgba(9,11,13,.96)
+                );
+            box-shadow:
+                0 18px 50px rgba(0,0,0,.42),
+                inset 0 1px 0 rgba(255,255,255,.05);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transform: translateX(120%);
+            opacity: 0;
+            transition:
+                transform .28s cubic-bezier(.2,.8,.2,1),
+                opacity .25s ease;
+        }
+
+        .v2-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .v2-notification.hide {
+            transform: translateX(115%);
+            opacity: 0;
+        }
+
+        .v2-notification.warning {
+            border-color: rgba(255,190,70,.22);
+        }
+
+        .v2-notification.danger {
+            border-color: rgba(255,70,70,.28);
+            box-shadow:
+                0 18px 55px rgba(0,0,0,.5),
+                0 0 35px rgba(255,40,40,.08);
+        }
+
+        .v2-notification.critical {
+            border-color: rgba(255,55,55,.42);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(42,12,14,.97),
+                    rgba(12,8,9,.97)
+                );
+        }
+
+        .v2-notification-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .v2-icon {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(255,255,255,.06);
+            color: #dce2e5;
+            font-size: 14px;
+        }
+
+        .warning .v2-icon {
+            color: #ffc45c;
+            background: rgba(255,190,70,.09);
+        }
+
+        .danger .v2-icon,
+        .critical .v2-icon {
+            color: #ff7777;
+            background: rgba(255,60,60,.10);
+        }
+
+        .v2-source {
+            font-size: 10px;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+            color: rgba(235,240,243,.43);
+        }
+
+        .v2-time {
+            margin-left: auto;
+            font-size: 9px;
+            color: rgba(235,240,243,.30);
+        }
+
+        .v2-title {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 650;
+            letter-spacing: .01em;
+            color: #f1f4f5;
+        }
+
+        .v2-body {
+            margin-top: 5px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: rgba(225,231,234,.58);
+        }
+
+        .v2-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 9px;
+        }
+
+        .v2-chip {
+            padding: 4px 7px;
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 5px;
+            background: rgba(255,255,255,.025);
+            font-size: 9px;
+            color: rgba(225,231,234,.44);
+        }
+
+        /* Fake browser warning */
 
         #v2-browser-warning {
             position: fixed;
             left: 50%;
             top: 50%;
-            z-index: 14000;
-            transform: translate(-50%, -50%) scale(0.98);
-
-            width: min(420px, calc(100vw - 40px));
-
-            padding: 22px 24px;
-
-            border-radius: 9px;
-            border: 1px solid rgba(255,255,255,0.13);
-
-            background: rgba(28,29,31,0.96);
-            color: #eee;
-
-            box-shadow:
-                0 30px 100px rgba(0,0,0,0.55),
-                0 0 0 1px rgba(0,0,0,0.3);
-
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-
+            z-index: 110;
+            width: min(440px, calc(100vw - 36px));
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 14px;
+            background: rgba(27,29,31,.97);
+            box-shadow: 0 30px 100px rgba(0,0,0,.7);
+            transform: translate(-50%, -50%) scale(.96);
             opacity: 0;
             pointer-events: none;
-            transition:
-                opacity 0.12s ease,
-                transform 0.12s ease;
+            transition: opacity .25s, transform .25s;
         }
 
-        #v2-browser-warning.visible {
+        #v2-browser-warning.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
 
-        .warning-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
+        .browser-title {
+            font-size: 17px;
+            font-weight: 650;
+            color: #f3f4f5;
         }
 
-        .warning-body {
-            font-size: 13px;
+        .browser-text {
+            margin-top: 9px;
+            color: rgba(235,240,243,.55);
+            font-size: 12px;
             line-height: 1.55;
-            color: #b9bcc1;
         }
 
-        .warning-footer {
-            margin-top: 17px;
+        .browser-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 21px;
+        }
+
+        .browser-btn {
+            padding: 8px 13px;
+            border-radius: 7px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.05);
+            color: rgba(240,243,244,.75);
             font-size: 11px;
-            color: #777b82;
         }
 
-        /* =====================================================
-           FAKE CRASH
-        ===================================================== */
+        /* Crash screen */
 
         #v2-crash {
             position: fixed;
             inset: 0;
-            z-index: 20000;
-
+            z-index: 120;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            background: #090a0c;
-            color: #f2f2f2;
-
+            background: #050607;
             opacity: 0;
             pointer-events: none;
-
-            transition: opacity 0.45s ease;
+            transition: opacity .45s;
         }
 
-        #v2-crash.visible {
+        #v2-crash.show {
             opacity: 1;
         }
 
-        .crash-content {
-            width: min(680px, 88vw);
+        .crash-inner {
+            width: min(720px, 84vw);
         }
 
         .crash-face {
-            font-size: clamp(64px, 11vw, 110px);
+            font-size: clamp(58px, 9vw, 100px);
             font-weight: 200;
-            line-height: 1;
-            margin-bottom: 24px;
+            color: #e9edf0;
         }
 
         .crash-title {
-            font-size: clamp(20px, 3vw, 30px);
-            font-weight: 500;
-            margin-bottom: 14px;
+            margin-top: 20px;
+            font-size: clamp(19px, 2.4vw, 28px);
+            font-weight: 350;
+            color: #e9edf0;
         }
 
-        .crash-description {
-            color: #a7abb1;
-            line-height: 1.65;
-            font-size: 14px;
-            max-width: 570px;
+        .crash-copy {
+            max-width: 620px;
+            margin-top: 13px;
+            color: rgba(225,230,233,.58);
+            font-size: 12px;
+            line-height: 1.7;
         }
 
         .crash-progress {
-            margin-top: 34px;
-            width: min(460px, 100%);
-            height: 3px;
-            background: rgba(255,255,255,0.1);
+            width: min(420px, 100%);
+            height: 4px;
+            margin-top: 25px;
             overflow: hidden;
+            border-radius: 10px;
+            background: rgba(255,255,255,.08);
         }
 
-        .crash-progress-fill {
-            width: 0%;
+        .crash-progress-bar {
+            width: 0;
             height: 100%;
-            background: #eee;
+            background: rgba(230,235,237,.72);
             transition: width 2.8s linear;
         }
 
-        .crash-code {
-            margin-top: 18px;
-            font-family:
-                "SFMono-Regular",
-                Consolas,
-                monospace;
-            font-size: 11px;
-            color: #686d74;
-            letter-spacing: 0.08em;
+        .crash-status {
+            margin-top: 12px;
+            font-size: 10px;
+            letter-spacing: .13em;
+            color: rgba(225,230,233,.36);
+            text-transform: uppercase;
         }
 
-        /* =====================================================
-           REVEAL
-        ===================================================== */
+        /* Reveal */
 
         #v2-reveal {
             position: fixed;
             inset: 0;
-            z-index: 25000;
-
+            z-index: 130;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            background: #08090b;
-            color: #eee;
-
+            background: #07090a;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.6s ease;
+            transition: opacity .8s ease;
         }
 
-        #v2-reveal.visible {
+        #v2-reveal.show {
             opacity: 1;
-            pointer-events: auto;
         }
 
-        .reveal-content {
-            width: min(680px, 88vw);
+        .reveal-inner {
+            width: min(700px, 84vw);
             text-align: center;
         }
 
         .reveal-label {
-            color: #7c828a;
-            font-family:
-                "SFMono-Regular",
-                Consolas,
-                monospace;
             font-size: 10px;
-            letter-spacing: 0.22em;
+            letter-spacing: .22em;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            color: rgba(225,230,233,.34);
         }
 
         .reveal-title {
-            font-size: clamp(28px, 5vw, 48px);
-            letter-spacing: -0.04em;
-            margin: 0;
+            margin-top: 16px;
+            font-size: clamp(24px, 4vw, 44px);
+            letter-spacing: .04em;
+            font-weight: 500;
+            color: #f1f4f5;
         }
 
-        .reveal-text {
-            margin: 22px auto 0;
-            max-width: 570px;
-            color: #969ca4;
-            line-height: 1.75;
-            font-size: 14px;
-        }
-
-        .reveal-button {
-            margin-top: 30px;
-            border: 1px solid rgba(255,255,255,0.16);
-            background: rgba(255,255,255,0.05);
-            color: #eee;
-            border-radius: 8px;
-            padding: 11px 18px;
+        .reveal-copy {
+            max-width: 600px;
+            margin: 18px auto 0;
             font-size: 12px;
+            line-height: 1.75;
+            color: rgba(225,230,233,.52);
+        }
+
+        .reveal-btn {
+            margin-top: 28px;
+            padding: 10px 17px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 8px;
+            background: rgba(255,255,255,.04);
+            color: rgba(240,243,244,.72);
+            font-size: 11px;
             cursor: pointer;
-            transition:
-                background 0.2s ease,
-                border-color 0.2s ease;
+            transition: background .2s, border-color .2s;
         }
 
-        .reveal-button:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.28);
+        .reveal-btn:hover {
+            background: rgba(255,255,255,.08);
+            border-color: rgba(255,255,255,.2);
         }
 
-        /* =====================================================
-           GLITCH
-        ===================================================== */
-
-        .v2-glitch {
-            animation:
-                v2GlitchX 0.12s steps(2) infinite,
-                v2GlitchY 0.17s steps(2) infinite;
-        }
-
-        .v2-rgb {
-            filter:
-                drop-shadow(-4px 0 rgba(255,0,70,0.65))
-                drop-shadow(4px 0 rgba(0,210,255,0.65));
-        }
-
-        .v2-heavy-glitch {
-            animation:
-                v2HeavyX 0.07s steps(2) infinite,
-                v2HeavyY 0.09s steps(2) infinite;
-        }
-
-        .v2-distort {
-            filter:
-                contrast(1.35)
-                saturate(1.35)
-                brightness(1.08);
-        }
-
-        @keyframes v2GlitchX {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-3px); }
-            50% { transform: translateX(4px); }
-            75% { transform: translateX(-1px); }
-            100% { transform: translateX(0); }
-        }
-
-        @keyframes v2GlitchY {
-            0% { margin-top: 0; }
-            50% { margin-top: 2px; }
-            100% { margin-top: -1px; }
-        }
-
-        @keyframes v2HeavyX {
-            0% { transform: translateX(0) skewX(0deg); }
-            20% { transform: translateX(-12px) skewX(-1deg); }
-            40% { transform: translateX(15px) skewX(2deg); }
-            60% { transform: translateX(-7px) skewX(-1deg); }
-            80% { transform: translateX(9px) skewX(1deg); }
-            100% { transform: translateX(0) skewX(0deg); }
-        }
-
-        @keyframes v2HeavyY {
-            0% { margin-top: 0; }
-            30% { margin-top: 7px; }
-            60% { margin-top: -6px; }
-            100% { margin-top: 0; }
-        }
-
-        @keyframes v2Noise {
+        @keyframes noiseMove {
             0% { transform: translate(0,0); }
-            25% { transform: translate(4%, -3%); }
-            50% { transform: translate(-3%, 5%); }
-            75% { transform: translate(5%, 2%); }
-            100% { transform: translate(-2%, -4%); }
+            25% { transform: translate(2%, -1%); }
+            50% { transform: translate(-1%, 2%); }
+            75% { transform: translate(1%, 1%); }
+            100% { transform: translate(-2%, -1%); }
         }
 
-        @media (max-width: 650px) {
-            #v2-main {
-                padding: 18px;
+        @keyframes shake {
+            0% { transform: translate(0); }
+            15% { transform: translate(-5px, 2px); }
+            30% { transform: translate(4px, -2px); }
+            45% { transform: translate(-3px, 1px); }
+            60% { transform: translate(5px, -1px); }
+            75% { transform: translate(-2px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes tear {
+            0% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+            20% {
+                clip-path: inset(15% 0 60% 0);
+                transform: translate(-12px);
+            }
+            40% {
+                clip-path: inset(55% 0 20% 0);
+                transform: translate(10px);
+            }
+            60% {
+                clip-path: inset(30% 0 40% 0);
+                transform: translate(-6px);
+            }
+            80% {
+                clip-path: inset(75% 0 8% 0);
+                transform: translate(9px);
+            }
+            100% {
+                clip-path: inset(0 0 0 0);
+                transform: translate(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            #v2-notifications {
+                top: 14px;
+                right: 14px;
+                width: calc(100vw - 28px);
             }
 
-            .workspace {
-                padding: 32px 25px;
-                border-radius: 18px;
+            .v2-notification {
+                padding: 12px;
             }
 
-            #v2-status {
+            .v2-title {
+                font-size: 13px;
+            }
+
+            .v2-body {
                 font-size: 10px;
-                letter-spacing: 0.12em;
-            }
-
-            #v2-corner-status {
-                right: 12px;
-                bottom: 12px;
             }
         }
 
@@ -6734,283 +6719,312 @@
             *,
             *::before,
             *::after {
-                animation-duration: 0.01ms !important;
+                animation-duration: .01ms !important;
                 animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+                transition-duration: .01ms !important;
             }
         }
     `;
 
     document.head.appendChild(style);
 
-    /* =========================================================
-       HTML
-    ========================================================= */
-
     document.body.innerHTML = `
-        <div id="v2-app">
+        <main id="v2-stage">
 
-            <main id="v2-main">
-                <section class="workspace">
-                    <div class="workspace-label">
-                        Personal Workspace
-                    </div>
+            <div id="v2-noise"></div>
+            <div id="v2-scanlines"></div>
 
-                    <h1>Welcome back.</h1>
+            <div id="v2-center">
+                <div id="v2-status"></div>
+            </div>
 
-                    <p>
-                        Your session is ready.
-                        Everything appears to be working normally.
-                    </p>
+        </main>
 
-                    <div class="workspace-status">
-                        <span class="status-dot"></span>
-                        Session ready
-                    </div>
-                </section>
-            </main>
-
-        </div>
-
-        <div id="v2-overlay"></div>
-
-        <div id="v2-blackout"></div>
         <div id="v2-flash"></div>
+        <div id="v2-glitch-red"></div>
+        <div id="v2-glitch-blue"></div>
+        <div id="v2-blackout"></div>
 
-        <div id="v2-noise"></div>
-        <div id="v2-scanlines"></div>
+        <section id="v2-notifications"></section>
 
-        <div id="v2-status"></div>
-        <div id="v2-corner-status"></div>
-
-        <div id="v2-browser-warning">
-            <div class="warning-title">
-                This page isn't responding
+        <section id="v2-browser-warning">
+            <div class="browser-title">This page isn't responding</div>
+            <div class="browser-text">
+                The page appears to be unresponsive.
+                You can wait for the page to respond or close it.
             </div>
 
-            <div class="warning-body">
-                The page appears to be taking longer than expected.
-                You can wait for the page to respond.
+            <div class="browser-actions">
+                <div class="browser-btn">Close page</div>
+                <div class="browser-btn">Wait</div>
             </div>
+        </section>
 
-            <div class="warning-footer">
-                Waiting for response...
-            </div>
-        </div>
-
-        <div id="v2-crash">
-            <div class="crash-content">
-
+        <section id="v2-crash">
+            <div class="crash-inner">
                 <div class="crash-face">:(</div>
 
                 <div class="crash-title">
                     Something went wrong.
                 </div>
 
-                <div class="crash-description">
-                    The current session encountered an unexpected
-                    display failure and is attempting to recover.
+                <div class="crash-copy">
+                    The current session encountered an unexpected display
+                    failure and is attempting to recover.
                 </div>
 
                 <div class="crash-progress">
-                    <div class="crash-progress-fill"></div>
+                    <div class="crash-progress-bar"></div>
                 </div>
 
-                <div class="crash-code">
-                    RECOVERY CODE: 0x00000000
+                <div class="crash-status">
+                    Initializing recovery...
                 </div>
-
             </div>
-        </div>
+        </section>
 
-        <div id="v2-reveal">
-            <div class="reveal-content">
-
+        <section id="v2-reveal">
+            <div class="reveal-inner">
                 <div class="reveal-label">
-                    Visual Simulation Complete
+                    Visual Simulation
                 </div>
 
-                <h2 class="reveal-title">
+                <div class="reveal-title">
                     Nothing was hacked.
-                </h2>
+                </div>
 
-                <p class="reveal-text">
-                    This was a visual browser simulation.
-                    No files, accounts, network resources, camera,
-                    microphone, or device data were accessed.
-                    The freezes, glitches, recovery messages and
-                    crash screen were completely fictional.
-                </p>
+                <div class="reveal-copy">
+                    This was a browser-local visual security simulation.
+                    No files, accounts, network services, camera, microphone
+                    or device data were accessed. Every notification,
+                    security event, freeze and crash shown during the
+                    sequence was fictional.
+                </div>
 
-                <button class="reveal-button" id="v2-run-again">
+                <button class="reveal-btn" id="v2-replay">
                     RUN AGAIN
                 </button>
-
             </div>
-        </div>
+        </section>
     `;
 
-    /* =========================================================
-       ELEMENTS
-    ========================================================= */
-
-    const main = document.getElementById("v2-main");
-    const blackout = document.getElementById("v2-blackout");
-    const flash = document.getElementById("v2-flash");
+    const stage = document.getElementById("v2-stage");
+    const center = document.getElementById("v2-center");
     const status = document.getElementById("v2-status");
-    const cornerStatus = document.getElementById("v2-corner-status");
-    const noise = document.getElementById("v2-noise");
+
+    const notifications = document.getElementById("v2-notifications");
+
+    const flash = document.getElementById("v2-flash");
+    const blackout = document.getElementById("v2-blackout");
+    const glitchRed = document.getElementById("v2-glitch-red");
+    const glitchBlue = document.getElementById("v2-glitch-blue");
     const scanlines = document.getElementById("v2-scanlines");
+
     const browserWarning = document.getElementById("v2-browser-warning");
     const crash = document.getElementById("v2-crash");
-    const crashProgress = document.querySelector(".crash-progress-fill");
+    const crashBar = document.querySelector(".crash-progress-bar");
+    const crashStatus = document.querySelector(".crash-status");
     const reveal = document.getElementById("v2-reveal");
-    const runAgain = document.getElementById("v2-run-again");
+    const replay = document.getElementById("v2-replay");
 
     let frozen = false;
-    let stopped = false;
+    let destroyed = false;
 
-    /* =========================================================
-       HELPERS
-    ========================================================= */
+    /*
+     * Notification helper
+     */
 
-    const sleep = (ms) =>
-        new Promise(resolve => setTimeout(resolve, ms));
+    function notify({
+        source = "Security Center",
+        title,
+        body,
+        type = "normal",
+        icon = "◉",
+        duration = 1500,
+        chips = []
+    }) {
+        if (destroyed) return;
 
-    async function wait(ms) {
-        if (stopped) return;
-        await sleep(ms);
-    }
+        const card = document.createElement("article");
 
-    function addClass(className) {
-        main.classList.add(className);
-    }
+        card.className = `v2-notification ${type}`;
 
-    function removeClass(className) {
-        main.classList.remove(className);
-    }
+        card.innerHTML = `
+            <div class="v2-notification-head">
+                <div class="v2-icon">${icon}</div>
 
-    async function showStatus(
-        message,
-        duration = 800,
-        type = "",
-        position = "center"
-    ) {
-        if (stopped) return;
+                <div class="v2-source">${source}</div>
 
-        const target =
-            position === "corner"
-                ? cornerStatus
-                : status;
+                <div class="v2-time">
+                    just now
+                </div>
+            </div>
 
-        target.textContent = message;
+            <div class="v2-title">
+                ${title}
+            </div>
 
-        if (target === status) {
-            status.className = "";
-            status.classList.add("visible");
+            <div class="v2-body">
+                ${body}
+            </div>
 
-            if (type) {
-                status.classList.add(type);
+            ${
+                chips.length
+                    ? `
+                        <div class="v2-meta">
+                            ${chips
+                                .map(
+                                    chip =>
+                                        `<span class="v2-chip">${chip}</span>`
+                                )
+                                .join("")}
+                        </div>
+                    `
+                    : ""
             }
-        } else {
-            cornerStatus.className = "visible";
+        `;
 
-            if (type) {
-                cornerStatus.classList.add(type);
+        notifications.appendChild(card);
+
+        requestAnimationFrame(() => {
+            card.classList.add("show");
+        });
+
+        setTimeout(() => {
+            card.classList.remove("show");
+            card.classList.add("hide");
+
+            setTimeout(() => {
+                card.remove();
+            }, 350);
+        }, duration);
+    }
+
+    /*
+     * Center status helper
+     */
+
+    function centerStatus(text, strong = "") {
+        center.style.opacity = "1";
+
+        status.innerHTML = `
+            ${text}
+            ${
+                strong
+                    ? `<strong>${strong}</strong>`
+                    : ""
             }
-        }
-
-        await sleep(duration);
-
-        target.classList.remove("visible");
-        target.classList.remove("warning");
-        target.classList.remove("error");
+        `;
     }
 
-    async function blinkStatus(
-        message,
-        duration = 500,
-        type = "",
-        position = "center"
-    ) {
-        await showStatus(message, duration, type, position);
+    function hideCenter() {
+        center.style.opacity = "0";
     }
 
-    async function flashScreen(duration = 90) {
-        flash.style.opacity = "1";
-        await sleep(duration);
-        flash.style.opacity = "0";
+    /*
+     * Visual effects
+     */
+
+    function microFlash(opacity = 0.18, duration = 70) {
+        flash.style.transition = "none";
+        flash.style.opacity = opacity;
+
+        requestAnimationFrame(() => {
+            flash.style.transition = `opacity ${duration}ms ease`;
+            flash.style.opacity = "0";
+        });
     }
 
-    async function black(duration = 500) {
-        blackout.classList.add("active");
-        await sleep(duration);
-        blackout.classList.remove("active");
+    function blackoutFor(duration = 700) {
+        return new Promise(resolve => {
+            blackout.style.opacity = "1";
+
+            setTimeout(() => {
+                blackout.style.opacity = "0";
+                resolve();
+            }, duration);
+        });
     }
 
-    async function glitch(duration = 500, heavy = false) {
-        addClass(heavy ? "v2-heavy-glitch" : "v2-glitch");
+    function glitch(intensity = 1, duration = 500) {
+        return new Promise(resolve => {
+            stage.style.filter = `
+                contrast(${1 + intensity * .35})
+                saturate(${1 + intensity * .25})
+                brightness(${1 - intensity * .08})
+            `;
 
-        noise.classList.add("active");
-        scanlines.classList.add("active");
+            stage.style.animation = `shake ${Math.max(
+                100,
+                180 / intensity
+            )}ms steps(2) infinite`;
 
-        await sleep(duration);
+            glitchRed.style.opacity = String(.14 * intensity);
+            glitchBlue.style.opacity = String(.11 * intensity);
 
-        removeClass(heavy ? "v2-heavy-glitch" : "v2-glitch");
+            scanlines.style.opacity = String(.45 * intensity);
 
-        noise.classList.remove("active");
-        scanlines.classList.remove("active");
+            setTimeout(() => {
+                stage.style.filter = "";
+                stage.style.animation = "";
+
+                glitchRed.style.opacity = "0";
+                glitchBlue.style.opacity = "0";
+                scanlines.style.opacity = "0";
+
+                resolve();
+            }, duration);
+        });
     }
 
-    async function rgb(duration = 500) {
-        addClass("v2-rgb");
-        await sleep(duration);
-        removeClass("v2-rgb");
+    function tear(duration = 400) {
+        stage.style.animation = `tear ${duration}ms steps(5)`;
+
+        setTimeout(() => {
+            stage.style.animation = "";
+        }, duration);
     }
 
-    async function distort(duration = 400) {
-        addClass("v2-distort");
-        await sleep(duration);
-        removeClass("v2-distort");
+    /*
+     * Visual freeze.
+     *
+     * This does NOT disable browser refresh/navigation.
+     * It only makes the page look frozen and suppresses
+     * page-local interaction temporarily.
+     */
+
+    function freezePage(duration = 3000) {
+        return new Promise(resolve => {
+            frozen = true;
+
+            stage.style.filter = "contrast(1.18) brightness(.82)";
+            stage.style.transform = "scale(1.002)";
+
+            setTimeout(() => {
+                stage.style.filter = "";
+                stage.style.transform = "";
+
+                frozen = false;
+                resolve();
+            }, duration);
+        });
     }
-
-    async function visualFreeze(duration = 2500) {
-        frozen = true;
-
-        main.style.pointerEvents = "none";
-
-        await sleep(duration);
-
-        main.style.pointerEvents = "";
-        frozen = false;
-    }
-
-    async function browserUnresponsive(duration = 2400) {
-        browserWarning.classList.add("visible");
-
-        await sleep(duration);
-
-        browserWarning.classList.remove("visible");
-    }
-
-    /* =========================================================
-       PAGE-LOCAL INPUT FREEZE
-       Browser controls such as refresh/address bar remain
-       untouched.
-    ========================================================= */
 
     document.addEventListener(
         "keydown",
         event => {
             if (!frozen) return;
 
-            if (event.key === "Escape") {
-                frozen = false;
-                return;
+            /*
+             * Suppress only page-local keys.
+             * Browser refresh/navigation controls remain browser-owned.
+             */
+            if (
+                event.key !== "F5" &&
+                !(event.ctrlKey || event.metaKey)
+            ) {
+                event.preventDefault();
             }
-
-            event.preventDefault();
-            event.stopPropagation();
         },
         true
     );
@@ -7018,498 +7032,328 @@
     document.addEventListener(
         "click",
         event => {
-            if (!frozen) return;
-
-            event.preventDefault();
-            event.stopPropagation();
+            if (frozen) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
         },
         true
     );
 
-    /* =========================================================
-       STAGE 1
-       NORMAL PAGE
-    ========================================================= */
+    /*
+     * Main sequence
+     */
 
-    async function stageNormal() {
+    async function runSimulation() {
+        destroyed = false;
 
-        await wait(1800);
+        /*
+         * PHASE 1
+         * Immediate strange behavior
+         */
 
-        // Small, believable status flash.
-        await blinkStatus(
-            "CONNECTED",
-            650,
-            "",
-            "corner"
-        );
+        await wait(700);
 
-        await wait(2100);
+        microFlash(.10, 90);
 
-        await blinkStatus(
-            "SESSION READY",
-            700,
-            "",
-            "corner"
-        );
+        await wait(250);
 
-        await wait(2600);
-
-        // Nothing dramatic yet.
-        await blinkStatus(
-            "SYNCED",
-            520,
-            "",
-            "corner"
-        );
-
-        await wait(3000);
-    }
-
-    /* =========================================================
-       STAGE 2
-       FIRST SUBTLE ANOMALY
-    ========================================================= */
-
-    async function stageFirstAnomaly() {
-
-        await flashScreen(75);
-
-        await wait(500);
-
-        await blinkStatus(
-            "VERIFYING...",
-            700
-        );
-
-        await wait(900);
-
-        addClass("v2-glitch");
-
-        await sleep(130);
-
-        removeClass("v2-glitch");
-
-        await wait(1200);
-
-        await blinkStatus(
-            "CONNECTION STABLE",
-            600,
-            "",
-            "corner"
-        );
-
-        await wait(1700);
-
-        await rgb(260);
+        notify({
+            source: "Account Security",
+            title: "New sign-in detected",
+            body: "A new session was just established.",
+            type: "normal",
+            icon: "◉",
+            duration: 1900,
+            chips: [
+                "Device: Unrecognized",
+                "Location: Unknown"
+            ]
+        });
 
         await wait(850);
 
-        await blinkStatus(
-            "CHECKING DISPLAY...",
-            800
+        centerStatus(
+            "Session Monitor",
+            "VERIFYING SESSION..."
         );
 
-        await wait(1300);
-    }
+        await wait(750);
 
-    /* =========================================================
-       STAGE 3
-       SOMETHING IS ACTUALLY WRONG
-    ========================================================= */
+        /*
+         * PHASE 2
+         * First obvious anomaly
+         */
 
-    async function stageFailureOne() {
+        microFlash(.18, 80);
 
-        await blinkStatus(
-            "RESPONSE DELAYED",
-            850,
-            "warning"
-        );
+        await glitch(.65, 420);
 
-        await wait(450);
-
-        await glitch(430);
-
-        await wait(700);
-
-        await blinkStatus(
-            "RETRIEVING SESSION STATE...",
-            1050
-        );
-
-        await wait(600);
-
-        await visualFreeze(2200);
-
-        await black(500);
-
-        await wait(400);
-
-        await blinkStatus(
-            "RESTORING DISPLAY...",
-            950
-        );
-
-        await wait(600);
-
-        await glitch(350);
-
-        await wait(700);
-
-        await blinkStatus(
-            "SESSION RECOVERED",
-            700,
-            "",
-            "corner"
-        );
-
-        await wait(2400);
-    }
-
-    /* =========================================================
-       STAGE 4
-       RECOVERY LOOKS NORMAL
-    ========================================================= */
-
-    async function stageRecovery() {
+        notify({
+            source: "Security Center",
+            title: "Security verification required",
+            body: "A change to the active session was detected.",
+            type: "warning",
+            icon: "!",
+            duration: 1900,
+            chips: [
+                "Session: Changed",
+                "Verification: Required"
+            ]
+        });
 
         await wait(1000);
 
-        await blinkStatus(
-            "CONNECTION RESTORED",
-            750,
-            "",
-            "corner"
-        );
+        hideCenter();
 
-        await wait(2200);
+        /*
+         * PHASE 3
+         * Contradictory connection state
+         */
 
-        await blinkStatus(
-            "ALL SYSTEMS NORMAL",
-            650,
-            "",
-            "corner"
-        );
-
-        await wait(2300);
-
-        // Contradiction begins.
-        await blinkStatus(
-            "CONNECTION LOST",
-            700,
-            "warning"
-        );
-
-        await wait(300);
-
-        await blinkStatus(
-            "CONNECTED",
-            500,
-            "",
-            "corner"
-        );
-
-        await wait(1800);
-    }
-
-    /* =========================================================
-       STAGE 5
-       FAKE BROWSER UNRESPONSIVE STATE
-    ========================================================= */
-
-    async function stageUnresponsive() {
-
-        await glitch(600);
-
-        await wait(350);
-
-        await blinkStatus(
-            "SESSION INTERRUPTED",
-            950,
-            "warning"
-        );
-
-        await wait(500);
-
-        await browserUnresponsive(2400);
-
-        await visualFreeze(3300);
-
-        await black(850);
-
-        await wait(500);
-    }
-
-    /* =========================================================
-       STAGE 6
-       CORRUPTED RECOVERY
-    ========================================================= */
-
-    async function stageCorruptedRecovery() {
-
-        await blinkStatus(
-            "RECOVERY IN PROGRESS...",
-            1000
-        );
-
-        await wait(500);
-
-        await glitch(500);
-
-        await wait(450);
-
-        await blinkStatus(
-            "VERIFYING RECOVERY...",
-            850
+        centerStatus(
+            "Connection",
+            "CONNECTED"
         );
 
         await wait(650);
 
-        await rgb(450);
+        centerStatus(
+            "Connection",
+            "CONNECTION LOST"
+        );
+
+        microFlash(.22, 60);
 
         await wait(500);
 
-        await blinkStatus(
-            "DISPLAY STATUS: UNSTABLE",
-            850,
-            "warning"
+        centerStatus(
+            "Connection",
+            "CONNECTION RESTORED"
         );
 
-        await wait(400);
+        notify({
+            source: "Session Monitor",
+            title: "Additional session detected",
+            body: "Another active session appears to be associated with this state.",
+            type: "warning",
+            icon: "◌",
+            duration: 1700,
+            chips: [
+                "State: Unknown"
+            ]
+        });
 
-        await flashScreen(100);
+        await wait(850);
 
-        await wait(500);
+        /*
+         * PHASE 4
+         * First hard freeze
+         */
 
-        await blinkStatus(
-            "RESTORING...",
-            700
+        hideCenter();
+
+        microFlash(.30, 55);
+
+        await freezePage(3200);
+
+        /*
+         * PHASE 5
+         * Blackout + recovery
+         */
+
+        await blackoutFor(850);
+
+        notify({
+            source: "Browser Security",
+            title: "Session recovery in progress",
+            body: "Attempting to restore the previous session state.",
+            type: "warning",
+            icon: "↻",
+            duration: 1900
+        });
+
+        centerStatus(
+            "Recovery Service",
+            "RESTORING SESSION..."
         );
 
-        await wait(450);
+        await wait(950);
 
-        await glitch(700);
+        await glitch(.75, 520);
 
-        await wait(500);
+        /*
+         * PHASE 6
+         * Escalation
+         */
 
-        await blinkStatus(
-            "RECOVERY CHANNEL UNSTABLE",
-            1000,
-            "error"
+        notify({
+            source: "Account Security",
+            title: "Unrecognized session detected",
+            body: "The current session could not be verified.",
+            type: "danger",
+            icon: "!",
+            duration: 1900,
+            chips: [
+                "Verification: Failed"
+            ]
+        });
+
+        await wait(850);
+
+        notify({
+            source: "Security Center",
+            title: "Session integrity check failed",
+            body: "The active session state is no longer consistent.",
+            type: "danger",
+            icon: "×",
+            duration: 1900
+        });
+
+        await wait(850);
+
+        centerStatus(
+            "Authentication",
+            "VERIFICATION FAILED"
         );
+
+        await tear(600);
+
+        notify({
+            source: "System Notice",
+            title: "SECURITY EVENT DETECTED",
+            body: "Access state could not be determined.",
+            type: "critical",
+            icon: "!",
+            duration: 2100,
+            chips: [
+                "Access: Unknown",
+                "Recovery: Required"
+            ]
+        });
 
         await wait(900);
-    }
 
-    /* =========================================================
-       STAGE 7
-       ESCALATION
-    ========================================================= */
+        /*
+         * PHASE 7
+         * More aggressive instability
+         */
 
-    async function stageEscalation() {
+        await glitch(1.15, 850);
 
-        await wait(500);
-
-        await blinkStatus(
-            "STATE OUT OF SYNC",
-            850,
-            "warning"
-        );
-
-        await wait(500);
-
-        await rgb(350);
+        microFlash(.32, 65);
 
         await wait(250);
 
-        await blinkStatus(
-            "CONTROL UNAVAILABLE",
-            850,
-            "error"
-        );
+        notify({
+            source: "Session Monitor",
+            title: "SESSION COMPROMISED",
+            body: "Authentication state is no longer available.",
+            type: "critical",
+            icon: "×",
+            duration: 2200
+        });
 
-        await wait(400);
+        await wait(900);
 
-        await glitch(900, true);
+        /*
+         * PHASE 8
+         * Fake browser unresponsive state
+         */
 
-        await wait(250);
+        hideCenter();
 
-        await blinkStatus(
-            "SESSION STATE: UNKNOWN",
-            1100,
-            "error"
-        );
+        await glitch(.85, 450);
 
-        await wait(400);
+        browserWarning.classList.add("show");
 
-        await flashScreen(110);
+        await wait(2500);
 
-        await wait(350);
+        browserWarning.classList.remove("show");
 
-        await blinkStatus(
-            "DO NOT CLOSE THIS WINDOW",
-            1050,
-            "error"
-        );
+        /*
+         * PHASE 9
+         * Hard visual freeze
+         */
 
-        await wait(450);
+        await blackoutFor(650);
 
-        await visualFreeze(3600);
+        await freezePage(3600);
 
-        await black(2200);
+        /*
+         * PHASE 10
+         * Fake crash screen
+         */
 
-        await wait(450);
+        crash.classList.add("show");
 
-        await flashScreen(65);
+        await wait(500);
 
-        await wait(650);
-    }
-
-    /* =========================================================
-       STAGE 8
-       FAKE CRASH
-    ========================================================= */
-
-    async function stageCrash() {
-
-        crash.classList.add("visible");
-
-        await wait(700);
-
-        crashProgress.style.width = "42%";
-
-        await wait(2300);
-
-        crashProgress.style.width = "78%";
-
-        await wait(1500);
-
-        crash.querySelector(".crash-code").textContent =
-            "RECOVERY FAILED — RETRYING";
+        crashBar.style.width = "37%";
+        crashStatus.textContent = "Recovering display state...";
 
         await wait(1600);
 
-        crashProgress.style.width = "100%";
+        crashBar.style.width = "73%";
+        crashStatus.textContent = "Restoring session state...";
+
+        await wait(1500);
+
+        crashBar.style.width = "91%";
+        crashStatus.textContent = "SESSION RECOVERY FAILED — RETRYING";
 
         await wait(1200);
 
-        crash.querySelector(".crash-description").textContent =
-            "The session could not restore its previous display state.";
+        crashBar.style.width = "100%";
+        crashStatus.textContent = "SESSION STATE: UNKNOWN";
 
-        crash.querySelector(".crash-code").textContent =
-            "SESSION STATE: UNKNOWN";
+        await wait(2300);
 
-        await wait(2500);
+        /*
+         * PHASE 11
+         * Silence
+         */
+
+        crash.classList.remove("show");
+
+        await blackoutFor(1800);
+
+        /*
+         * PHASE 12
+         * Reveal
+         */
+
+        reveal.classList.add("show");
     }
 
-    /* =========================================================
-       STAGE 9
-       SILENCE
-    ========================================================= */
+    /*
+     * Small timing helper
+     */
 
-    async function stageSilence() {
-
-        crash.style.opacity = "0";
-
-        await wait(900);
-
-        crash.style.display = "none";
-
-        await black(1800);
-
-        await wait(1200);
+    function wait(ms) {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms);
+        });
     }
 
-    /* =========================================================
-       STAGE 10
-       REVEAL
-    ========================================================= */
+    /*
+     * Replay
+     */
 
-    async function stageReveal() {
-
-        reveal.classList.add("visible");
-    }
-
-    /* =========================================================
-       MAIN SEQUENCE
-    ========================================================= */
-
-    async function runSimulation() {
-
-        stopped = false;
-
-        crash.style.display = "flex";
-        crash.style.opacity = "";
-        crash.classList.remove("visible");
-
-        reveal.classList.remove("visible");
-
-        crashProgress.style.width = "0%";
-
-        crash.querySelector(".crash-description").textContent =
-            "The current session encountered an unexpected display failure and is attempting to recover.";
-
-        crash.querySelector(".crash-code").textContent =
-            "RECOVERY CODE: 0x00000000";
-
-        await stageNormal();
-
-        if (stopped) return;
-
-        await stageFirstAnomaly();
-
-        if (stopped) return;
-
-        await stageFailureOne();
-
-        if (stopped) return;
-
-        await stageRecovery();
-
-        if (stopped) return;
-
-        await stageUnresponsive();
-
-        if (stopped) return;
-
-        await stageCorruptedRecovery();
-
-        if (stopped) return;
-
-        await stageEscalation();
-
-        if (stopped) return;
-
-        await stageCrash();
-
-        if (stopped) return;
-
-        await stageSilence();
-
-        if (stopped) return;
-
-        await stageReveal();
-    }
-
-    /* =========================================================
-       RUN AGAIN
-    ========================================================= */
-
-    runAgain.addEventListener("click", () => {
+    replay.addEventListener("click", () => {
         location.reload();
     });
 
-    /* =========================================================
-       START AUTOMATICALLY
-    ========================================================= */
+    /*
+     * Start automatically.
+     *
+     * No button.
+     * No workspace.
+     * No terminal.
+     */
 
-    window.addEventListener("load", () => {
-        setTimeout(() => {
-            runSimulation();
-        }, 1100);
-    });
-
+    runSimulation();
 })();
-
 
 
 /*
